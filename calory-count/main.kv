@@ -1,0 +1,36 @@
+BoxLayout:
+	orientation: 'vertical'
+
+	MDToolbar:
+		title: "Calory Counter"
+		md_bg_color: .2, .2, .2, 1
+		specific_text_color: 1, 1, 1, 1
+
+	MDBottomNavigation:
+		panel_color: .2, .2, .2, 1 
+		MDBottomNavigationItem:
+			name: 'add_screen'
+			text: "New meal"
+			icon: 'plus'
+
+			MDLabel: 
+				text: "Add A new Meal"
+				halign: 'center'
+
+		MDBottomNavigationItem:
+			name: 'daily_screen'
+			text: "Daily"
+			icon: 'more'
+
+			MDLabel:
+				text: "View Todays Meals"
+				halign: 'center'
+
+		MDBottomNavigationItem:
+			name: 'trends_screen'
+			text: "Trends"
+			icon: 'ruler'
+
+			MDLabel:
+				text: "View your trends here"
+				halign: 'center'
