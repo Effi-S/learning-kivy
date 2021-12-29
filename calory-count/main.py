@@ -39,7 +39,7 @@ class CaloryApp(MDApp):
     def _protiens_fats_carbs(self) -> tuple[int]:
         """Helper method for getting the 3 sliders values"""
         sliders = [self.root.ids.protein_slider, self.root.ids.fats_slider, self.root.ids.carbs_slider]
-        return tuple(int(x.value) for x in sliders if x.value)
+        return tuple(int(x.value) if x.value else 0 for x in sliders)
     def is_meal_input_ok(self) -> bool:
         """ Making sure that the inputs are good for adding to DB """
         errors = []  # Errors will be added here
