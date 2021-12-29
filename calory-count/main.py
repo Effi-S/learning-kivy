@@ -7,7 +7,7 @@ from kivymd.app import MDApp
 from kivy.uix.popup import Popup
 from kivymd.uix.label import Label
 
-from meal_db import Meal
+from meal_db import Meal, MealDB
 
 class CaloryApp(MDApp):
     def build(self):
@@ -31,6 +31,8 @@ class CaloryApp(MDApp):
                      carbs = carbs,
                      cals = (proteins + carbs)*4 + fats*9
                     )
+        with MealDB() as mdb:
+            mdb.add_meal(meal)
         self.on_clear_meal_button_pressed()
         self.root.ids.add_meal_label.text = "New meal Added"
 
@@ -64,6 +66,10 @@ class CaloryApp(MDApp):
          if left_over < 0:
              slider.value = val - 1
 
+    def on_daily_screen_pressed(self, *args):
+        with MealDB() as mdb:
+            cals = sum(meal.cals for meal in mdb.get_all_meals())
+            self.root.ids.total_cals_label.text = str(cals)
 
 if __name__ ==  '__main__':
     CaloryApp().run()

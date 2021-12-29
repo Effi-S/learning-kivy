@@ -84,10 +84,15 @@ BoxLayout:
 			name: 'daily_screen'
 			text: "Daily"
 			icon: 'more'
-
-			MDLabel:
-				text: "View Todays Meals"
-				halign: 'center'
+			on_tab_press: app.on_daily_screen_pressed(*args)
+			MDBoxLayout:
+				MDLabel:
+					text: "Total Calories today:"
+					halign: 'center'
+				MDLabel:
+					id: total_cals_label
+					text: "0"
+					halign: 'center'
 
 		MDBottomNavigationItem:
 			name: 'trends_screen'
