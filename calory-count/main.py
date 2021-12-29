@@ -22,14 +22,17 @@ class CaloryApp(MDApp):
         """
         if not self.is_meal_input_ok():
             return
+        grams = float(self.root.ids.grams_input.text)
         proteins, fats, carbs = self._protiens_fats_carbs()
+        cals =  ((proteins*4 + carbs*4 + fats*9)/100) * grams
+        print(cals)
         meal = Meal( name = self.root.ids.meal_name_input.text,
                      date = dt.now().isoformat(),
-                     grams = float(self.root.ids.grams_input.text),
+                     grams = grams,
                      proteins = proteins,
                      fats = fats,
                      carbs = carbs,
-                     cals = (proteins + carbs)*4 + fats*9
+                     cals = cals
                     )
         with MealDB() as mdb:
             mdb.add_meal(meal)
