@@ -5,6 +5,8 @@ BoxLayout:
 		title: "Calory Counter"
 		md_bg_color: .2, .2, .2, 1
 		specific_text_color: 1, 1, 1, 1
+		left_action_items:[['menu']]
+		right_action_items: [['dots-vertical']]
 
 	MDBottomNavigation:
 		panel_color: .2, .2, .2, 1 
@@ -13,9 +15,70 @@ BoxLayout:
 			text: "New meal"
 			icon: 'plus'
 
-			MDLabel: 
-				text: "Add A new Meal"
-				halign: 'center'
+			MDCard:
+				size_hint: 0.7, 0.9
+				pos_hint: {"center_x": 0.5, "center_y": 0.5}
+				elevation: 10
+				padding: 25 
+				spacing: 25
+				orientation: 'vertical'
+		
+				MDLabel: 
+					id: add_meal_label
+					text: "Add A new Meal"
+					halign: 'center'
+				MDTextFieldRound:
+					id: meal_name_input
+					hint_text: "Name of the meal"
+					icon_right: "pizza"
+					size_hint_x: 0.7
+				MDTextFieldRound:
+					id: grams_input
+					hint_text: "Grams of the meal"
+					icon_right: "scale"
+					size_hint_x: 0.7
+				MDLabel:
+					text: "Proteins:"
+				MDSlider:
+					id: protein_slider
+					min: 0
+					max: 100
+					step: 1
+					hint: True
+					on_value: app.on_meal_slide(*args)
+				
+				MDLabel:
+					text: "Fats:"
+				MDSlider:
+					id: fats_slider
+					min: 0
+					max: 100
+					step: 1
+					hint: True
+					on_value: app.on_meal_slide(*args)
+				MDLabel:
+					text: "Carbs:"
+				MDSlider:
+					id: carbs_slider
+					min: 1
+					max: 100
+					step: 1
+					on_value: app.on_meal_slide(*args)
+					
+
+				MDRoundFlatButton:
+					id: add_meal_button
+					text: "Submit Meal"
+					font_size: 12
+					pos_hint: {"center_x": 0.5}
+					on_press: app.on_add_meal_button_pressed()
+				MDRoundFlatButton:
+					id: clear_meal_button
+					text: "Clear"
+					font_size: 12
+					pos_hint: {"center_x": 0.5}
+					on_press: app.on_clear_meal_button_pressed()
+
 
 		MDBottomNavigationItem:
 			name: 'daily_screen'
