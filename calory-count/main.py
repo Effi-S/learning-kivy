@@ -1,4 +1,6 @@
+from __future__ import annotations
 import os
+
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
 from datetime import datetime as dt
 
@@ -9,11 +11,13 @@ from kivymd.uix.label import Label
 
 from meal_db import Meal, MealDB
 
-class CaloryApp(MDApp):
+
+class CaloriesApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "BlueGray"
         return Builder.load_file("main.kv")
+
     def on_add_meal_button_pressed(self):
         """ When  the Submit meal button is pressed:
                 1. asserts the inputs are good.
@@ -24,32 +28,33 @@ class CaloryApp(MDApp):
             return
         grams = float(self.root.ids.grams_input.text)
         proteins, fats, carbs = self._protiens_fats_carbs()
-        cals =  ((proteins*4 + carbs*4 + fats*9)/100) * grams
+        cals = ((proteins * 4 + carbs * 4 + fats * 9) / 100) * grams
         print(cals)
-        meal = Meal( name = self.root.ids.meal_name_input.text,
-                     date = dt.now().isoformat(),
-                     grams = grams,
-                     proteins = proteins,
-                     fats = fats,
-                     carbs = carbs,
-                     cals = cals
+        meal = Meal(name=self.root.ids.meal_name_input.text,
+                    date=dt.now().isoformat(),
+                    grams=grams,
+                    proteins=proteins,
+                    fats=fats,
+                    carbs=carbs,
+                    cals=cals
                     )
         with MealDB() as mdb:
             mdb.add_meal(meal)
         self.on_clear_meal_button_pressed()
         self.root.ids.add_meal_label.text = "New meal Added"
 
-    def _protiens_fats_carbs(self) -> tuple[int]:
+    def _protiens_fats_carbs(self) -> tuple[int, ...]:
         """Helper method for getting the 3 sliders values"""
         sliders = [self.root.ids.protein_slider, self.root.ids.fats_slider, self.root.ids.carbs_slider]
         return tuple(int(x.value) if x.value else 0 for x in sliders)
+
     def is_meal_input_ok(self) -> bool:
         """ Making sure that the inputs are good for adding to DB """
         errors = []  # Errors will be added here
         if not sum(self._protiens_fats_carbs()) == 100:
             errors.append('Proteins fats and Crabs do not add up to 100.')
         if not self.root.ids.grams_input.text:
-           errors.append('Grams was not specified')
+            errors.append('Grams was not specified')
         elif not all(x.isalnum() for x in self.root.ids.grams_input.text):
             errors.append('Grams must be a number.')
         if errors:
@@ -58,22 +63,24 @@ class CaloryApp(MDApp):
                   size_hint=(0.5, 0.3)).open()
             return False
         return True
+
     def on_clear_meal_button_pressed(self):
         self.root.ids.add_meal_label.text = ""
         self.root.ids.protein_slider.value = 0
         self.root.ids.fats_slider.value = 0
         self.root.ids.carbs_slider.value = 0
+
     def on_meal_slide(self, slider, val):
-         """Event that occurs on sliders value changed in add meal screen"""
-         left_over = int(100 - sum(self._protiens_fats_carbs()))
-         if left_over < 0:
-             slider.value = val - 1
+        """Event that occurs on sliders value changed in add meal screen"""
+        left_over = int(100 - sum(self._protiens_fats_carbs()))
+        if left_over < 0:
+            slider.value = val - 1
 
     def on_daily_screen_pressed(self, *args):
         with MealDB() as mdb:
             cals = sum(meal.cals for meal in mdb.get_all_meals())
             self.root.ids.total_cals_label.text = str(cals)
 
-if __name__ ==  '__main__':
-    CaloryApp().run()
 
+if __name__ == '__main__':
+    CaloriesApp().run()

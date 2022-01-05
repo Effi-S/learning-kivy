@@ -1,8 +1,13 @@
+"""This module holds a connection for our Meals Database "MealBD"
+Parameters to and from this DB are passed with instances of the  dataclass "Meal". """
+from __future__ import annotations
 import sqlite3
 from dataclasses import dataclass
 
+
 @dataclass
 class Meal:
+    """This dataclass represents the data in the Meal DB"""
     name: str
     date: str
     proteins: float
@@ -14,9 +19,11 @@ class Meal:
     @property
     def columns(self) -> list[str]:
         return list(self.__dict__.keys())
+
     @property
     def values(self) -> list[str]:
         return list(self.__dict__.values())
+
 
 class MealDB:
     def __init__(self):
@@ -36,6 +43,7 @@ class MealDB:
 
     def __enter__(self, *a, **k):
         return self
+
     def __exit__(self, *a, **k):
         self.conn.close()
 
