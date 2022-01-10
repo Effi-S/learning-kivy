@@ -1,7 +1,7 @@
 [app]
 
 # (str) Title of your application
-title = Calory Counting App
+title = Calorie Counting
 
 # (str) Package name
 package.name = caloryapp
@@ -37,7 +37,8 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = sqlite3,python3,kivy==2.0.0rc4,https://github.com/kivymd-extensions/akivymd/archive/main.zip
+#requirements = sqlite3,python3,kivy==2.0.0rc4,https://github.com/kivymd-extensions/akivymd/archive/main.zip
+requirements = sqlite3,python3,kivy==2.0.0rc4,pil,kivymd==0.104.2,sdl2_ttf==2.0.15,https://github.com/kivymd-extensions/akivymd/archive/main.zip,https://github.com/kivy-garden/graph/archive/master.zip
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
@@ -47,6 +48,7 @@ requirements = sqlite3,python3,kivy==2.0.0rc4,https://github.com/kivymd-extensio
 
 # (str) Icon of the application
 #icon.filename = %(source.dir)s/data/icon.png
+icon.filename = cc.jpg
 
 # (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
 orientation = portrait
