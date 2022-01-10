@@ -4,6 +4,7 @@ from typing import Optional
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # for debugging with GPU (must be before imports)
 
+from kivymd.uix.list import TwoLineAvatarIconListItem
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
@@ -46,8 +47,15 @@ class CaloriesApp(MDApp):
     def on_daily_screen_pressed(self, *args):
         with MealEntriesDB() as me_db:
             today = dt.now().date().isoformat()
-            cals = sum(e.meal.cals for e in me_db.get_entries_between_dates(today, today))
+            entries = me_db.get_entries_between_dates(today, today)
+            cals = sum(e.meal.cals for e in entries)
             self.root.ids.total_cals_label.text = str(cals)
+            entry_list = self.root.ids.daily_entries_list
+            entry_list.clear_widgets()
+            for i, entry in enumerate(entries):
+                item = TwoLineAvatarIconListItem(text=entry.meal.name or f'{i} (Unnamed)',
+                                                 secondary_text=f'Calories: {entry.meal.cals}')
+                entry_list.add_widget(item)
 
     def on_my_meals_screen_pressed(self, *args):
         with MealDB() as mdb:
@@ -73,7 +81,7 @@ class CaloriesApp(MDApp):
         self.add_meal_dialog.open()
 
     def on_trends_pressed(self, *args, _once=[]):  # Note: mutable default parameter is on purpose here
-        """"""
+        """Event when entering the "Trends" screen """
         if not _once:
             # Setting the Date in trends
             today = dt.now().date().isoformat()

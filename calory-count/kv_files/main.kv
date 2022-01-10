@@ -34,13 +34,18 @@ MainKV:
             icon: 'view-day-outline'
             on_tab_press: app.on_daily_screen_pressed(*args)
             MDBoxLayout:
-                MDLabel:
-                    text: "Total Calories today:"
-                    halign: 'center'
-                MDLabel:
-                    id: total_cals_label
-                    text: "0"
-                    halign: 'center'
+                orientation: 'vertical'
+                MDBoxLayout:
+                    MDLabel:
+                        text: "Total Calories today:"
+                        halign: 'center'
+                    MDLabel:
+                        id: total_cals_label
+                        text: "0"
+                        halign: 'center'
+                ScrollView:
+                    MDList:
+                        id: daily_entries_list
 
         MDBottomNavigationItem:
             name: 'trends_screen'
