@@ -1,6 +1,5 @@
 from __future__ import annotations
 import os
-from math import sin
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # for debugging with GPU (must be before imports)
 
@@ -12,7 +11,6 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.menu import MDDropdownMenu
 
 from kivy.clock import Clock
-d
 from kivy.metrics import dp
 from kivymd.toast import toast
 from kivymd.uix.datatables import MDDataTable
@@ -23,6 +21,7 @@ from kivymd.app import MDApp
 from DB.meal_entry_db import MealEntriesDB, MealEntry
 
 from datetime import datetime as dt
+from datetime import timedelta
 
 from utils import sort_by_similarity
 from meal_add_dialog import MealAddDialog
@@ -81,11 +80,12 @@ class CaloriesApp(MDApp):
     def on_trends_pressed(self, *args, _once=[]):  # Note: mutable default parameter is on purpose here
         """Event when entering the "Trends" screen """
         if not _once:
-            # Setting the Date in trends
+            # Setting the Dates in trends between today and 7 days ago
             today = dt.now().date().isoformat()
+            a_week_ago = dt.now().date() - timedelta(days=7)
             start = self.root.ids.trends_screen.ids.trend_start_date_button
             end = self.root.ids.trends_screen.ids.trend_end_date_button
-            start.text += f'\n{today}'
+            start.text += f'\n{a_week_ago}'
             end.text += f'\n{today}'
             _once.append(1)
         self.generate_trend()

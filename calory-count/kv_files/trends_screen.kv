@@ -6,6 +6,7 @@
     MDGridLayout:
         cols: 3
         spacing: dp(5)
+        size_hint: 1, .1
         MDFillRoundFlatButton:
             id: trend_start_date_button
             text: "Start Date:"
@@ -23,5 +24,6 @@
             on_release: app.generate_trend(*args)
 
     MDFloatLayout:
+        size_hint: .8, .8
         id: trend_chart_layout
 
