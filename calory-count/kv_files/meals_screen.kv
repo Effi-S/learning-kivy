@@ -1,0 +1,50 @@
+<MealsScreen@FloatLayout>:
+    MDBoxLayout:
+        orientation: 'vertical'
+	    MDCard:
+	    	size_hint: .9, .6
+	    	pos_hint: {"x": .05}
+	    	padding: 20
+	    	spacing: 20
+	    	elevation: 10
+	    	orientation: 'vertical'
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                MDLabel:
+                    text: "Your Meals:"
+                    size_hint_y: .1
+
+                MDBoxLayout:
+                    id: my_meals_layout
+
+                MDBoxLayout:
+                    size_hint: 1, .2
+                    pos_hint: {"x": .8}
+                    MDFloatingActionButton:
+                        icon: "delete"
+                        on_press: app.on_delete_meals_pressed(*args)
+                    MDFloatingActionButton:
+                        icon: "plus"
+                        on_press: app.on_add_meal_pressed(*args)
+
+        MDCard:
+	    	size_hint: 0.9, 0.2
+	    	padding: 20
+	    	spacing: 20
+	    	pos_hint: {'x': .05}
+	    	elevation: 10
+	    	orientation: 'vertical'
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                MDLabel:
+                    text: "Search for a Meal:"
+                    size_hint_y: .1
+
+                MDBoxLayout:
+                    id: search_meal_layout
+
+                MDFloatingActionButton:
+                    icon: "plus"
+                    pos_hint: {"x": .9}

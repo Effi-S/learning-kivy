@@ -1,85 +1,150 @@
 from __future__ import annotations
 import os
+from typing import Optional
 
-os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
-from datetime import datetime as dt
+os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # for debugging with GPU (must be before imports)
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.menu import MDDropdownMenu
+
+from kivy.clock import Clock
+
+from kivy.metrics import dp
+from kivymd.toast import toast
+from kivymd.uix.datatables import MDDataTable
 
 from kivy.lang import Builder
 from kivymd.app import MDApp
-from kivy.uix.popup import Popup
-from kivymd.uix.label import Label
 
-from meal_db import Meal, MealDB
+from DB.meal_entry_db import MealEntriesDB, MealEntry
+from kivy.uix.popup import Popup
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.slider import MDSlider
+from kivymd.uix.label import MDLabel
+from datetime import datetime as dt
+
+from utils import sort_by_similarity
+from meal_add_dialog import MealAddDialog
+from DB.meal_db import Meal, MealDB
 
 
 class CaloriesApp(MDApp):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.add_meal_dialog = None
+        self.meals_table = None
+        self._drop_down = None
+
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "BlueGray"
-        return Builder.load_file("main.kv")
-
-    def on_add_meal_button_pressed(self):
-        """ When  the Submit meal button is pressed:
-                1. asserts the inputs are good.
-                2. Adds a new meal.
-                3. Clears the inputs.
-        """
-        if not self.is_meal_input_ok():
-            return
-        grams = float(self.root.ids.grams_input.text)
-        proteins, fats, carbs = self._protiens_fats_carbs()
-        cals = ((proteins * 4 + carbs * 4 + fats * 9) / 100) * grams
-        print(cals)
-        meal = Meal(name=self.root.ids.meal_name_input.text,
-                    date=dt.now().isoformat(),
-                    grams=grams,
-                    proteins=proteins,
-                    fats=fats,
-                    carbs=carbs,
-                    cals=cals
-                    )
-        with MealDB() as mdb:
-            mdb.add_meal(meal)
-        self.on_clear_meal_button_pressed()
-        self.root.ids.add_meal_label.text = "New meal Added"
-
-    def _protiens_fats_carbs(self) -> tuple[int, ...]:
-        """Helper method for getting the 3 sliders values"""
-        sliders = [self.root.ids.protein_slider, self.root.ids.fats_slider, self.root.ids.carbs_slider]
-        return tuple(int(x.value) if x.value else 0 for x in sliders)
-
-    def is_meal_input_ok(self) -> bool:
-        """ Making sure that the inputs are good for adding to DB """
-        errors = []  # Errors will be added here
-        if not sum(self._protiens_fats_carbs()) == 100:
-            errors.append('Proteins fats and Crabs do not add up to 100.')
-        if not self.root.ids.grams_input.text:
-            errors.append('Grams was not specified')
-        elif not all(x.isalnum() for x in self.root.ids.grams_input.text):
-            errors.append('Grams must be a number.')
-        if errors:
-            Popup(title="Can't Add Meal",
-                  content=Label(text='\n'.join(errors)),
-                  size_hint=(0.5, 0.3)).open()
-            return False
-        return True
-
-    def on_clear_meal_button_pressed(self):
-        self.root.ids.add_meal_label.text = ""
-        self.root.ids.protein_slider.value = 0
-        self.root.ids.fats_slider.value = 0
-        self.root.ids.carbs_slider.value = 0
-
-    def on_meal_slide(self, slider, val):
-        """Event that occurs on sliders value changed in add meal screen"""
-        left_over = int(100 - sum(self._protiens_fats_carbs()))
-        if left_over < 0:
-            slider.value = val - 1
+        Clock.schedule_once(lambda x: self.on_my_meals_screen_pressed())  # loading table
+        return Builder.load_file("kv_files/main.kv")
 
     def on_daily_screen_pressed(self, *args):
-        with MealDB() as mdb:
-            cals = sum(meal.cals for meal in mdb.get_all_meals())
+        with MealEntriesDB() as me_db:
+            today = dt.now().date().isoformat()
+            cals = sum(e.meal.cals for e in me_db.get_entries_between_dates(today, today))
             self.root.ids.total_cals_label.text = str(cals)
+
+    def on_my_meals_screen_pressed(self, *args):
+        with MealDB() as mdb:
+            meals = mdb.get_all_meals()
+
+        table_layout = self.root.ids.meals_screen.ids.my_meals_layout
+        table_layout.clear_widgets()
+        self.meals_table = MDDataTable(column_data=[(col, dp(30)) for col in Meal.columns()],
+                                       row_data=[m.values for m in meals],
+                                       check=True,
+                                       use_pagination=True
+                                       )
+        if not meals:
+            self.meals_table.title = 'No Meals Yet'
+            toast('No Meals Yet')
+
+        table_layout.add_widget(self.meals_table)
+
+    def on_add_meal_pressed(self, *args):
+        if not self.add_meal_dialog:
+            self.add_meal_dialog = MealAddDialog(self.root_window)
+            self.add_meal_dialog.bind(on_dismiss=self.on_my_meals_screen_pressed)
+        self.add_meal_dialog.open()
+
+    def on_name_entered_in_add_entry_screen(self, c: str, *args):
+        text_field = self.root.ids.entry_add_screen.ids.meal_name_input
+        target = text_field.text + c
+        self._drop_down = MDDropdownMenu(
+            caller=text_field,
+            width_mult=4)
+
+        def callback(txt: str) -> None:
+            self.root.ids.entry_add_screen.ids.meal_name_input.text = txt
+            with MealDB() as db:
+                self.root.ids.entry_add_screen.ids.grams_input.text = str(db.get_meal_by_name(txt).portion)
+
+        with MealDB() as mdb:
+            names = sort_by_similarity(mdb.get_all_meal_names(), target)
+            for name in names[:5]:
+                self._drop_down.items.append({'viewclass': 'OneLineListItem',
+                                              'text': name,
+                                              'on_release': lambda txt=name: callback(txt)
+                                              })
+
+        self._drop_down.open()
+        return c
+
+    def on_submit_meal_entry(self, *args):
+
+        name = self.root.ids.entry_add_screen.ids.meal_name_input.text
+        portion = self.root.ids.entry_add_screen.ids.grams_input.text
+        with MealDB() as mdb:
+            names = mdb.get_all_meal_names()
+        if name not in names:
+            print('On submit meal entry', *args)
+
+            # Get meal from dialog
+            def add_nameless_submission(*a, **k) -> None:
+                if not dialog.check_errors():
+                    with MealEntriesDB() as entries:
+                        entry = MealEntry(meal=dialog.last_submission)
+                        entries.add_meal_entry(entry)
+                        toast(f'Added Meal entry!\n({entry}')
+
+            dialog = MealAddDialog(self.root_window, allow_nameless=True)
+            dialog.meal_name.text, dialog.title = name, f'"{name}" not in Meals, Please add it below:'
+            dialog.open()
+            dialog.bind(on_dismiss=add_nameless_submission)
+        else:
+            with MealEntriesDB() as me_db:
+                me = MealEntry(name=name, portion=float(portion or 0))
+                me_db.add_meal_entry(me)
+                toast(f'Added Meal entry!\n({me}')
+
+    def on_delete_meals_pressed(self, *args):
+        print('On Delete Meals Pressed')
+        names = [x[0] for x in self.meals_table.get_row_checks()]
+
+        def remove(*a, **k):
+            with MealDB() as mdb:
+                mdb.remove(names)
+                dialog.dismiss()
+                self.on_my_meals_screen_pressed()
+                toast(f'Removed {len(names)} Meal/s')
+
+        dialog = MDDialog(
+            text=f"Are you sure you want to delete {len(names)} rows?",
+            buttons=[MDFlatButton(text="CANCEL",
+                                  theme_text_color="Custom",
+                                  text_color=self.theme_cls.primary_color,
+                                  on_press=lambda *a, **k: dialog.dismiss()),
+                     MDFlatButton(
+                         text="DELETE",
+                         theme_text_color="Custom",
+                         text_color=self.theme_cls.primary_color,
+                         on_press=remove),
+                     ],
+        )
+        dialog.open()
 
 
 if __name__ == '__main__':
