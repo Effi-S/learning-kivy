@@ -1,9 +1,10 @@
 from __future__ import annotations
 import os
-from typing import Optional
+from math import sin
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # for debugging with GPU (must be before imports)
 
+from kivy.garden.graph import Graph, LinePlot, MeshLinePlot
 from kivymd.uix.list import TwoLineAvatarIconListItem
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
@@ -20,10 +21,7 @@ from kivy.lang import Builder
 from kivymd.app import MDApp
 
 from DB.meal_entry_db import MealEntriesDB, MealEntry
-from kivy.uix.popup import Popup
-from kivymd.uix.textfield import MDTextField
-from kivymd.uix.slider import MDSlider
-from kivymd.uix.label import MDLabel
+
 from datetime import datetime as dt
 
 from utils import sort_by_similarity
@@ -49,12 +47,12 @@ class CaloriesApp(MDApp):
             today = dt.now().date().isoformat()
             entries = me_db.get_entries_between_dates(today, today)
             cals = sum(e.meal.cals for e in entries)
-            self.root.ids.total_cals_label.text = str(cals)
+            self.root.ids.total_cals_label.text = f'{cals: .2f}'
             entry_list = self.root.ids.daily_entries_list
             entry_list.clear_widgets()
-            for i, entry in enumerate(entries):
-                item = TwoLineAvatarIconListItem(text=entry.meal.name or f'{i} (Unnamed)',
-                                                 secondary_text=f'Calories: {entry.meal.cals}')
+            for i, entry in enumerate(entries, 1):
+                item = TwoLineAvatarIconListItem(text=entry.meal.name or f'Meal {i} (Unnamed)',
+                                                 secondary_text=f'Calories: {entry.meal.cals: .2f}')
                 entry_list.add_widget(item)
 
     def on_my_meals_screen_pressed(self, *args):
@@ -122,8 +120,6 @@ class CaloriesApp(MDApp):
         with MealDB() as mdb:
             names = mdb.get_all_meal_names()
         if name not in names:
-            print('On submit meal entry', *args)
-
             # Get meal from dialog
             def add_nameless_submission(*a, **k) -> None:
                 if not dialog.check_errors():
@@ -143,7 +139,6 @@ class CaloriesApp(MDApp):
                 toast(f'Added Meal entry!\n({me}')
 
     def on_delete_meals_pressed(self, *args):
-        print('On Delete Meals Pressed')
         names = [x[0] for x in self.meals_table.get_row_checks()]
 
         def remove(*a, **k):
@@ -170,8 +165,6 @@ class CaloriesApp(MDApp):
 
     @staticmethod
     def show_date_picker(button, *args, **kwargs):
-        print('In show_date_picker:', *args, kwargs)
-
         def got_date(_, date, *a, **k):
             button.text = button.text.splitlines()[0] + '\n' + date.isoformat()
 
@@ -180,13 +173,35 @@ class CaloriesApp(MDApp):
         picker.open()
 
     def generate_trend(self, *args, **kwargs):
-        print("in Generate Trends:", *args, kwargs)
         trend_chart_layout = self.root.ids.trends_screen.ids.trend_chart_layout
         start_date = self.root.ids.trends_screen.ids.trend_start_date_button.text.splitlines()[-1]
         end_date = self.root.ids.trends_screen.ids.trend_end_date_button.text.splitlines()[-1]
         trend_chart_layout.clear_widgets()
         with MealEntriesDB() as me_db:
             entries = me_db.get_entries_between_dates(str(start_date), str(end_date))
+
+        day2cal = dict.fromkeys((e.date for e in entries), 0)
+        for e in entries:
+            day2cal[e.date] += e.meal.cals
+        points = [(i, cals) for i, (_, cals) in enumerate(day2cal.items())]
+
+        max_cals = max(day2cal.values())
+
+        graph = Graph(xlabel='Date', ylabel='Calories',
+                      x_ticks_major=7, x_ticks_minor=1,
+                      y_ticks_major=100,  y_ticks_minor=4,
+                      y_grid_label=True, x_grid_label=True, padding=5,
+                      x_grid=True, y_grid=True,
+                      xmin=0, xmax=len(points),
+                      ymin=0, ymax=max_cals + 50)
+
+        plot = MeshLinePlot(color=[1, 0, 0, 1])
+        plot.points = points
+        graph.add_plot(plot)
+        graph.add_plot(plot)
+
+        trend_chart_layout.add_widget(graph)
+
         print(entries)
 
     @staticmethod
