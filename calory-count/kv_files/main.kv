@@ -1,5 +1,7 @@
 #: include ./kv_files/entry_add_screen.kv
 #: include ./kv_files/meals_screen.kv
+#: include ./kv_files/trends_screen.kv
+
 <MainKV@BoxLayout>:
     orientation: 'vertical'
 MainKV:
@@ -8,8 +10,7 @@ MainKV:
     	md_bg_color: .2, .2, .2, 1
     	specific_text_color: 1, 1, 1, 1
     	left_action_items:[['menu']]
-    	right_action_items: [['dots-vertical'], ['cog']]
-
+    	right_action_items: [['dots-vertical'], ['cog', app.show_theme_picker]]
 
     MDBottomNavigation:
         MDBottomNavigationItem:
@@ -29,8 +30,8 @@ MainKV:
 
         MDBottomNavigationItem:
             name: 'daily_screen'
-            text: "Daily"
-            icon: 'more'
+            text: "Today"
+            icon: 'view-day-outline'
             on_tab_press: app.on_daily_screen_pressed(*args)
             MDBoxLayout:
                 MDLabel:
@@ -45,7 +46,9 @@ MainKV:
             name: 'trends_screen'
             text: "Trends"
             icon: 'chart-bell-curve-cumulative'
-
-            MDLabel:
+            on_enter: app.on_trends_pressed(*args)
+            TrendsScreen:
+                id: trends_screen
                 text: "View your trends here"
                 halign: 'center'
+

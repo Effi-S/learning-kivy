@@ -3,6 +3,8 @@ import os
 from typing import Optional
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # for debugging with GPU (must be before imports)
+
+from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.menu import MDDropdownMenu
@@ -69,6 +71,18 @@ class CaloriesApp(MDApp):
             self.add_meal_dialog = MealAddDialog(self.root_window)
             self.add_meal_dialog.bind(on_dismiss=self.on_my_meals_screen_pressed)
         self.add_meal_dialog.open()
+
+    def on_trends_pressed(self, *args, _once=[]):  # Note: mutable default parameter is on purpose here
+        """"""
+        if not _once:
+            # Setting the Date in trends
+            today = dt.now().date().isoformat()
+            start = self.root.ids.trends_screen.ids.trend_start_date_button
+            end = self.root.ids.trends_screen.ids.trend_end_date_button
+            start.text += f'\n{today}'
+            end.text += f'\n{today}'
+            _once.append(1)
+        self.generate_trend()
 
     def on_name_entered_in_add_entry_screen(self, c: str, *args):
         text_field = self.root.ids.entry_add_screen.ids.meal_name_input
@@ -145,6 +159,32 @@ class CaloriesApp(MDApp):
                      ],
         )
         dialog.open()
+
+    @staticmethod
+    def show_date_picker(button, *args, **kwargs):
+        print('In show_date_picker:', *args, kwargs)
+
+        def got_date(_, date, *a, **k):
+            button.text = button.text.splitlines()[0] + '\n' + date.isoformat()
+
+        picker = MDDatePicker()
+        picker.bind(on_save=got_date)
+        picker.open()
+
+    def generate_trend(self, *args, **kwargs):
+        print("in Generate Trends:", *args, kwargs)
+        trend_chart_layout = self.root.ids.trends_screen.ids.trend_chart_layout
+        start_date = self.root.ids.trends_screen.ids.trend_start_date_button.text.splitlines()[-1]
+        end_date = self.root.ids.trends_screen.ids.trend_end_date_button.text.splitlines()[-1]
+        trend_chart_layout.clear_widgets()
+        with MealEntriesDB() as me_db:
+            entries = me_db.get_entries_between_dates(str(start_date), str(end_date))
+        print(entries)
+
+    @staticmethod
+    def show_theme_picker(*args, **kwargs):
+        theme_dialog = MDThemePicker()
+        theme_dialog.open()
 
 
 if __name__ == '__main__':

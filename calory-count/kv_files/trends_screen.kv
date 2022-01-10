@@ -1,0 +1,22 @@
+<TrendsScreen@MDBoxLayout>:
+    orientation: 'horizontal'
+    size_hint: .8, .8
+    pos_hint: {'x': .1, 'y': .1}
+    MDGridLayout:
+        cols: 3
+        MDRoundFlatButton:
+            id: trend_start_date_button
+            text: "Start Date:"
+            on_press: app.show_date_picker(*args)
+        MDRoundFlatButton:
+            text: "End Date:"
+            id: trend_end_date_button
+            on_release: app.show_date_picker(*args)
+        MDRoundFlatIconButton:
+            text: "Create"
+            icon: 'chart-box'
+            on_release: app.generate_trend(*args)
+
+    MDFloatLayout:
+        id: trend_chart_layout
+
