@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # for debugging with GPU (must be before imports)
+from kivymd_extensions.akivymd.uix.charts import AKPieChart
 
 from kivy.garden.graph import Graph, LinePlot, MeshLinePlot
 from kivymd.uix.list import TwoLineAvatarIconListItem
@@ -188,19 +189,37 @@ class CaloriesApp(MDApp):
 
         graph = Graph(xlabel='Date', ylabel='Calories',
                       x_ticks_major=7, x_ticks_minor=1,
-                      y_ticks_major=100,  y_ticks_minor=4,
+                      y_ticks_major=100, y_ticks_minor=4,
                       y_grid_label=True, x_grid_label=True, padding=5,
                       x_grid=True, y_grid=True,
                       xmin=0, xmax=len(points),
                       ymin=0, ymax=max_cals + 50)
 
-        plot = MeshLinePlot(color=[1, 0, 0, 1])
+        plot = MeshLinePlot(color=self.theme_cls.primary_palette)
         plot.points = points
         graph.add_plot(plot)
-        graph.add_plot(plot)
-
         trend_chart_layout.add_widget(graph)
 
+        trend_pie_chart_layout = self.root.ids.trends_screen.ids.trend_pie_chart_layout
+        data = {
+            'Protein': sum(e.meal.proteins for e in entries),
+            'Carbs': sum(e.meal.carbs for e in entries),
+            'Fats': sum(e.meal.fats for e in entries)
+        }
+        sum_values = sum(data.values())
+        data = {k: (v/sum_values)*100 for k, v in data.items()}
+        sum_values = sum(data.values())
+        leftover = 100 - sum_values
+        data['Carbs'] += leftover
+        print(data)
+
+        chart = AKPieChart(
+            items=[data],
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+            size_hint=[None, None],
+            size=(dp(300), dp(300)),
+        )
+        trend_pie_chart_layout.add_widget(chart)
         print(entries)
 
     @staticmethod
