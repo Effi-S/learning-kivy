@@ -12,7 +12,7 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.menu import MDDropdownMenu
 
 from kivy.clock import Clock
-
+d
 from kivy.metrics import dp
 from kivymd.toast import toast
 from kivymd.uix.datatables import MDDataTable
@@ -114,7 +114,6 @@ class CaloriesApp(MDApp):
         return c
 
     def on_submit_meal_entry(self, *args):
-
         name = self.root.ids.entry_add_screen.ids.meal_name_input.text
         portion = self.root.ids.entry_add_screen.ids.grams_input.text
         with MealDB() as mdb:
@@ -128,7 +127,7 @@ class CaloriesApp(MDApp):
                         entries.add_meal_entry(entry)
                         toast(f'Added Meal entry!\n({entry}')
 
-            dialog = MealAddDialog(self.root_window, allow_nameless=True)
+            dialog = MealAddDialog(self.root_window)
             dialog.meal_name.text, dialog.title = name, f'"{name}" not in Meals, Please add it below:'
             dialog.open()
             dialog.bind(on_dismiss=add_nameless_submission)
