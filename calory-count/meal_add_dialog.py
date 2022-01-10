@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from kivymd.toast import toast
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton
@@ -10,8 +11,19 @@ from kivymd.uix.textfield import MDTextField
 from DB.meal_db import MealDB, Meal
 
 
+class FloatMDTextField(MDTextField):
+    """TextField Input that only allows float input (0-9 or single dot)."""
+    def insert_text(self, s, from_undo=False):
+        if not s.isnumeric():
+            if s != '.' or '.' in self.text:
+                toast('Only numbers!')
+                s = ''
+        return super().insert_text(s, from_undo=from_undo)
+
+
 class MealAddDialog(MDDialog):
     last_submission: Meal = None  # Here we can store the last Meal submission
+
     def __init__(self, root_window, allow_nameless: bool = False, **kwargs):
 
         self.allow_nameless = allow_nameless
@@ -40,25 +52,17 @@ class MealAddDialog(MDDialog):
         # meal portion
         self.meal_portion = MDTextField(hint_text="Enter Portion (g) of the meal", icon_right="scale")
 
-        # fourth line - text fields
-        def only_number(s: str, *args):
-            """Filter function for MDTextFields that can only have numbers as input."""
-            if not s.isnumeric():
-                toast('Only numbers!')
-                return ''
-            return s
-
         inner_content = MDBoxLayout(orientation="horizontal")
-        self.protein = MDTextField(hint_text="Proteins (g)", icon_right='food-steak', input_filter=only_number)
-        self.fats = MDTextField(hint_text="Fats (g)", icon_right='fish', input_filter=only_number)
-        self.carbs = MDTextField(hint_text="Carbs (g)", icon_right='pasta', input_filter=only_number)
+        self.protein = FloatMDTextField(hint_text="Proteins (g)", icon_right='food-steak')
+        self.fats = FloatMDTextField(hint_text="Fats (g)", icon_right='fish')
+        self.carbs = FloatMDTextField(hint_text="Carbs (g)", icon_right='pasta')
         for x in (self.protein, self.fats, self.carbs):
             inner_content.add_widget(x)
         self.content.add_widget(inner_content)
 
         # fifth line - more text fields
-        self.sugar = MDTextField(hint_text="Sugar (g)", icon_right='food-apple', input_filter=only_number)
-        self.salt = MDTextField(hint_text="Salt (mg)", icon_right='shaker', input_filter=only_number)
+        self.sugar = FloatMDTextField(hint_text="Sugar (g)", icon_right='food-apple')
+        self.salt = FloatMDTextField(hint_text="Salt (mg)", icon_right='shaker')
         inner_content = MDBoxLayout(orientation="horizontal")
         for x in (self.salt, self.sugar):
             inner_content.add_widget(x)
@@ -88,12 +92,12 @@ class MealAddDialog(MDDialog):
                     errors.append(f'Name: {self.meal_name.text} already exists!')
         return errors
 
-    def _sum_inputs(self):
+    def _sum_inputs(self) -> float:
         """Get the sum in grams of all of the text fields of the dialog that receive."""
         gram_inputs = (self.protein, self.fats, self.carbs, self.sugar)
         mg_inputs = (self.salt,)
-        sum_grams = sum(int(x.text) for x in gram_inputs if x.text)
-        sum_mg = sum(int(x.text) / 1000 for x in mg_inputs if x.text)
+        sum_grams = sum(float(x.text) for x in gram_inputs if x.text)
+        sum_mg = sum(float(x.text) / 1000 for x in mg_inputs if x.text)
         return sum_grams + sum_mg
 
     def on_submit_meal_button_pressed(self, *args):
@@ -108,11 +112,11 @@ class MealAddDialog(MDDialog):
             with MealDB() as mdb:
                 meal = Meal(name=self.meal_name.text,
                             portion=portion,
-                            proteins=int(self.protein.text),
-                            fats=int(self.fats.text),
-                            carbs=int(self.carbs.text),
-                            sugar=int(self.sugar.text),
-                            sodium=int(self.salt.text))
+                            proteins=float(self.protein.text),
+                            fats=float(self.fats.text),
+                            carbs=float(self.carbs.text),
+                            sugar=float(self.sugar.text),
+                            sodium=float(self.salt.text))
                 mdb.add_meal(meal)
                 self.last_submission = meal
                 toast(f'Meal {meal.name} added!')
