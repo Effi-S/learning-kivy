@@ -1,5 +1,6 @@
+"""This Module holds a class MealAddDialog
+    - The dialog/pop-up of our calorie App that asks the user to input a new meal."""
 from __future__ import annotations
-
 from kivymd.toast import toast
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton
@@ -22,6 +23,7 @@ class FloatMDTextField(MDTextField):
 
 
 class MealAddDialog(MDDialog):
+    """A dialog/pop-up asking the user to add a new Meal."""
     last_submission: Meal = None  # Here we can store the last Meal submission
 
     def __init__(self, root_window, allow_nameless: bool = False, **kwargs):

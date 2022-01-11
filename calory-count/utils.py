@@ -1,3 +1,4 @@
+"""This module holds simple utility functions."""
 from typing import Iterable
 from difflib import SequenceMatcher
 

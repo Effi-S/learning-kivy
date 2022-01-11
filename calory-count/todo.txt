@@ -1,9 +1,10 @@
 TODO
 -----
 DONE - # Allow '.' in Add new meal dialog text fields
+DONE Add trends plotting
+# Allow remove meal entry
 # Make theme picker save data to db
 	- Create AppData class wich connects to DB (load/write)
-# Add trends plotting
 # Allow nameless meals? 
 # Fix Add new meal dialog text fields overlapping
 # Add search for Meal 
@@ -15,3 +16,4 @@ Nice To Have
 ----
 # Set a daily goal
 # Optional: Add minimal calorie out tracking
+# Add zoom in-out to plot

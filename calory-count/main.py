@@ -1,7 +1,8 @@
 from __future__ import annotations
-import os
 
-os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # for debugging with GPU (must be before imports)
+import os
+os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
+
 from plotting import plot_pie_chart, plot_graph
 from kivymd.uix.list import TwoLineAvatarIconListItem
 from kivymd.uix.picker import MDDatePicker, MDThemePicker

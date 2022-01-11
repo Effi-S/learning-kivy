@@ -1,8 +1,22 @@
-"""This module holds different plotting functions that are compatible kivy."""
+"""This module holds different plotting functions that are compatible kivy.
+
+Building Notes:
+    1) akivymd from:
+        - run: pip install kivymd-extensions.akivymd (checked on version 1.2.6)
+        - To buildozer.spec add: requirements = https://github.com/kivymd-extensions/akivymd/archive/main.zip
+    2) Add matplotlib to requirements in buildozer.spec
+        - run pip install matplotlib (checked on version 3.2.2)
+        - To buildozer.spec add: requirements = matplotlib==3.2.2
+    3) Get matplotlib backend package to kmplot folder
+            - pip install kivy.garden / sudo apt-get install kivy_garden
+            - garden install matplotlib
+                (any issues see:  https://www.youtube.com/watch?v=ak6HwZyj1lM&ab_channel=SkSahil)
+"""
+
 from __future__ import annotations
 
 from kivymd_extensions.akivymd.uix.charts import AKPieChart
-from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+from kmplot.backend_kivyagg import FigureCanvasKivyAgg
 import matplotlib.pyplot as plt
 
 
