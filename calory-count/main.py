@@ -2,9 +2,8 @@ from __future__ import annotations
 import os
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # for debugging with GPU (must be before imports)
-from kivymd_extensions.akivymd.uix.charts import AKPieChart
+from plotting import plot_pie_chart, plot_graph
 
-from kivy.garden.graph import Graph, LinePlot, MeshLinePlot
 from kivymd.uix.list import TwoLineAvatarIconListItem
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
@@ -173,54 +172,38 @@ class CaloriesApp(MDApp):
         picker.open()
 
     def generate_trend(self, *args, **kwargs):
-        trend_chart_layout = self.root.ids.trends_screen.ids.trend_chart_layout
+
+        # -- Getting
         start_date = self.root.ids.trends_screen.ids.trend_start_date_button.text.splitlines()[-1]
         end_date = self.root.ids.trends_screen.ids.trend_end_date_button.text.splitlines()[-1]
-        trend_chart_layout.clear_widgets()
+
         with MealEntriesDB() as me_db:
             entries = me_db.get_entries_between_dates(str(start_date), str(end_date))
 
-        day2cal = dict.fromkeys((e.date for e in entries), 0)
-        for e in entries:
-            day2cal[e.date] += e.meal.cals
-        points = [(i, cals) for i, (_, cals) in enumerate(day2cal.items())]
-
-        max_cals = max(day2cal.values())
-
-        graph = Graph(xlabel='Date', ylabel='Calories',
-                      x_ticks_major=7, x_ticks_minor=1,
-                      y_ticks_major=100, y_ticks_minor=4,
-                      y_grid_label=True, x_grid_label=True, padding=5,
-                      x_grid=True, y_grid=True,
-                      xmin=0, xmax=len(points),
-                      ymin=0, ymax=max_cals + 50)
-
-        plot = MeshLinePlot(color=self.theme_cls.primary_palette)
-        plot.points = points
-        graph.add_plot(plot)
-        trend_chart_layout.add_widget(graph)
-
+        # -- Adding Pie Chart
         trend_pie_chart_layout = self.root.ids.trends_screen.ids.trend_pie_chart_layout
+        trend_pie_chart_layout.clear_widgets()
         data = {
             'Protein': sum(e.meal.proteins for e in entries),
             'Carbs': sum(e.meal.carbs for e in entries),
             'Fats': sum(e.meal.fats for e in entries)
         }
-        sum_values = sum(data.values())
-        data = {k: (v/sum_values)*100 for k, v in data.items()}
-        sum_values = sum(data.values())
-        leftover = 100 - sum_values
-        data['Carbs'] += leftover
-        print(data)
+        pie_chart = plot_pie_chart(data)
+        trend_pie_chart_layout.add_widget(pie_chart)
 
-        chart = AKPieChart(
-            items=[data],
-            pos_hint={"center_x": 0.5, "center_y": 0.5},
-            size_hint=[None, None],
-            size=(dp(300), dp(300)),
-        )
-        trend_pie_chart_layout.add_widget(chart)
-        print(entries)
+        # -- Adding Graph
+        trend_chart_layout = self.root.ids.trends_screen.ids.trend_chart_layout
+        trend_chart_layout.clear_widgets()
+        data = dict.fromkeys((e.date for e in entries), 0)
+        for e in entries:
+            data[e.date] += e.meal.cals
+
+        print(data)
+        # graph = plot_graph(data, x_label='Date',
+        #                    y_label='Calories',
+        #                    color=self.theme_cls.primary_palette)
+        # trend_chart_layout.add_widget(graph)
+
 
     @staticmethod
     def show_theme_picker(*args, **kwargs):

@@ -23,11 +23,10 @@
             md_bg_color: app.theme_cls.primary_color
             on_release: app.generate_trend(*args)
 
-    MDBoxLayout:
-        MDFloatLayout:
-            size_hint: .4, .9
-            id: trend_chart_layout
-        MDFloatLayout:
-            size_hint: .2, .9
-            id: trend_pie_chart_layout
+    MDFloatLayout:
+        size_hint: .4, .9
+        id: trend_chart_layout
+    MDFloatLayout:
+        size_hint: .2, .9
+        id: trend_pie_chart_layout
 
