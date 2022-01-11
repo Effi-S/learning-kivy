@@ -3,7 +3,6 @@ import os
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # for debugging with GPU (must be before imports)
 from plotting import plot_pie_chart, plot_graph
-
 from kivymd.uix.list import TwoLineAvatarIconListItem
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
@@ -200,7 +199,6 @@ class CaloriesApp(MDApp):
 
         graph = plot_graph(data, y_label='Calories')
         trend_chart_layout.add_widget(graph)
-
 
     @staticmethod
     def show_theme_picker(*args, **kwargs):

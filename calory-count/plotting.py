@@ -6,10 +6,8 @@ from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 import matplotlib.pyplot as plt
 
 
-def plot_pie_chart(data: dict[str, float],
-                   pos_hint: dict = None) -> AKPieChart:
+def plot_pie_chart(data: dict[str, float]) -> AKPieChart:
     """This function takes in a data dict name->quantity and returns a AKPieChart"""
-    pos_hint = pos_hint or {"center_x": 0.5, "center_y": 0.5}
     sum_values = sum(data.values())
     data = {k: (v / sum_values) * 100 for k, v in data.items()}
     sum_values = sum(data.values())
