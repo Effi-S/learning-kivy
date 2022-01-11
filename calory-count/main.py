@@ -173,7 +173,7 @@ class CaloriesApp(MDApp):
 
     def generate_trend(self, *args, **kwargs):
 
-        # -- Getting
+        # -- Getting The relevant entries
         start_date = self.root.ids.trends_screen.ids.trend_start_date_button.text.splitlines()[-1]
         end_date = self.root.ids.trends_screen.ids.trend_end_date_button.text.splitlines()[-1]
 
@@ -198,11 +198,8 @@ class CaloriesApp(MDApp):
         for e in entries:
             data[e.date] += e.meal.cals
 
-        print(data)
-        # graph = plot_graph(data, x_label='Date',
-        #                    y_label='Calories',
-        #                    color=self.theme_cls.primary_palette)
-        # trend_chart_layout.add_widget(graph)
+        graph = plot_graph(data, y_label='Calories')
+        trend_chart_layout.add_widget(graph)
 
 
     @staticmethod
