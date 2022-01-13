@@ -50,7 +50,10 @@ def plot_graph(data: dict[str, float],
         "figure.autolayout": True
     })
     data = {'-'.join(k.split('-')[1:]): v for k, v in data.items()}  # removing year
-    plt.plot(*zip(*data.items()), label=y_label)
+    if len(data) == 1:
+        plt.bar(*zip(*data.items()), label=y_label)
+    else:
+        plt.plot(*zip(*data.items()), label=y_label)
     plt.legend()
 
     if x_label:
