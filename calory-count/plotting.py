@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 def plot_pie_chart(data: dict[str, float]) -> AKPieChart:
     """This function takes in a data dict name->quantity and returns a AKPieChart"""
-    sum_values = sum(data.values())
+    sum_values = sum(data.values()) or .0000001  # (delta to avoid zero devision)
     data = {k: (v / sum_values) * 100 for k, v in data.items()}
     sum_values = sum(data.values())
     leftover = 100 - sum_values

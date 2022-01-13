@@ -25,7 +25,7 @@ class Meal:
     @property
     def cals(self):
         """Calculate the calories of the Meal."""
-        return ((self.proteins * 4 + self.carbs * 4 + self.fats * 9) / 100) * self.portion
+        return self.proteins * 4 + self.carbs * 4 + self.fats * 9
 
     @staticmethod
     def columns() -> tuple[str, ...]:
