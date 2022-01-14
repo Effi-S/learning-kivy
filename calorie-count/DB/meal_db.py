@@ -5,24 +5,25 @@ import sqlite3
 from dataclasses import dataclass, field, astuple, asdict
 from datetime import datetime as dt
 from typing import Iterable
+import atexit
 
 
 @dataclass
 class Meal:
     """This dataclass represents the data in the Meal DB"""
     name: str
-    portion: float   # (g)
+    portion: float  # (g)
     proteins: float  # (g)
-    fats: float      # (g)
-    carbs: float     # (g)
-    sugar: float     # (g)
-    sodium: float    # (mg)
+    fats: float  # (g)
+    carbs: float  # (g)
+    sugar: float  # (g)
+    sodium: float  # (mg)
     id: str = field(default=None)
 
     def __post_init__(self):
         self.portion = self.portion or 0
         self.sodium = self.sodium or 0
-        self.sugar  = self.sugar or 0
+        self.sugar = self.sugar or 0
         self.id = self.name or dt.now().isoformat()
 
     @property
@@ -38,13 +39,14 @@ class Meal:
     @property
     def values(self) -> list[str]:
         """Get all the Values in the Meal to represent to the customer."""
-        return astuple(self)[:-1] + (self.cals, )  # everything but "id" + calories
+        return astuple(self)[:-1] + (self.cals,)  # everything but "id" + calories
 
 
 class MealDB:
     def __init__(self):
         # Connect to DB (or create one if none exists)
-        self.conn = sqlite3.connect("calorie_app")
+        self.conn = sqlite3.connect("calorie_app", timeout=15)
+        atexit.register(lambda: self.conn.close)  # for when 'with' not used
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE if not exists meals(
                                 name text,

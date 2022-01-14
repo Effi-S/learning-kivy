@@ -114,19 +114,27 @@ class MealAddDialog(MDDialog):
         errors = self.check_errors()
         if errors:
             toast('\n'.join(errors))
+            return
+
+        if self.is_percent_switch.active:
+            portion = float(self.meal_portion.text)
+            self.protein.text =  (float(self.protein.text)/100)*portion
+            self.fats.text =  (float(self.fats.text)/100)*portion
+            self.carbs.text =  (float(self.carbs.text)/100)*portion
         else:
-            portion = self.meal_portion.text if self.is_percent_switch.active else self._sum_inputs()
-            with MealDB() as mdb:
-                meal = Meal(name=self.meal_name.text,
-                            portion=float(portion),
-                            proteins=float(self.protein.text),
-                            fats=float(self.fats.text),
-                            carbs=float(self.carbs.text),
-                            sugar=float(self.sugar.text or 0),
-                            sodium=float(self.salt.text or 0))
-                mdb.add_meal(meal)
-                self.last_submission = meal
-                toast(f'Meal {meal.name} added!')
+            portion = float(self._sum_inputs())
+
+        with MealDB() as mdb:
+            meal = Meal(name=self.meal_name.text,
+                        portion=portion,
+                        proteins=float(self.protein.text),
+                        fats=float(self.fats.text),
+                        carbs=float(self.carbs.text),
+                        sugar=float(self.sugar.text or 0),
+                        sodium=float(self.salt.text or 0))
+            mdb.add_meal(meal)
+            self.last_submission = meal
+            toast(f'Meal {meal.name} added!')
 
     def on_clear_meal_button_pressed(self, *args):
         """Clear all the selections."""

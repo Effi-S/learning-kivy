@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import configparser
 import os
+
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
 
 from plotting import plot_pie_chart, plot_graph
@@ -27,6 +29,8 @@ from utils import sort_by_similarity
 from meal_add_dialog import MealAddDialog
 from DB.meal_db import Meal, MealDB
 
+CONFIG, THEME = 'DB/config.ini', 'THEME'
+
 
 class CaloriesApp(MDApp):
     def __init__(self, **kwargs):
@@ -36,8 +40,12 @@ class CaloriesApp(MDApp):
         self._drop_down = None
 
     def build(self):
-        self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "BlueGray"
+        parser = configparser.ConfigParser()
+        parser.read(CONFIG)
+        self.theme_cls.theme_style = parser.get(THEME, 'theme_style', fallback="Dark")
+        self.theme_cls.accent_palette = parser.get(THEME, 'accent_palette', fallback="Teal")
+        self.theme_cls.primary_palette = parser.get(THEME, 'primary_palette', fallback="BlueGray")
+
         Clock.schedule_once(lambda x: self.on_my_meals_screen_pressed())  # loading table
         return Builder.load_file("kv_files/main.kv")
 
@@ -167,7 +175,10 @@ class CaloriesApp(MDApp):
         def got_date(_, date, *a, **k):
             button.text = button.text.splitlines()[0] + '\n' + date.isoformat()
 
-        picker = MDDatePicker()
+        with MealEntriesDB() as me_db:
+            first, last = me_db.get_first_last_dates()
+
+        picker = MDDatePicker(min_date=first, max_date=last)
         picker.bind(on_save=got_date)
         picker.open()
 
@@ -201,9 +212,21 @@ class CaloriesApp(MDApp):
         graph = plot_graph(data, y_label='Calories')
         trend_chart_layout.add_widget(graph)
 
-    @staticmethod
-    def show_theme_picker(*args, **kwargs):
+    def show_theme_picker(self, *args, **kwargs):
+
+        def _set_theme(*a, **k):
+            parser = configparser.ConfigParser()
+            parser[THEME] = {
+                'theme_style': self.theme_cls.theme_style,
+                'primary_palette': self.theme_cls.primary_palette,
+                'accent_palette': self.theme_cls.accent_palette,
+
+            }
+            with open(CONFIG, 'w+') as fl:
+                parser.write(fl)
+
         theme_dialog = MDThemePicker()
+        theme_dialog.bind(on_dismiss=_set_theme)
         theme_dialog.open()
 
 

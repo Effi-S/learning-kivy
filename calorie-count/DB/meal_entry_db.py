@@ -3,9 +3,9 @@ Parameters to and from this DB are passed with instances of the  dataclass "Meal
 from __future__ import annotations
 import sqlite3
 from dataclasses import dataclass, field, InitVar, asdict
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 from typing import Iterable
-
+import atexit
 from DB.meal_db import Meal, MealDB
 
 
@@ -51,7 +51,8 @@ class MealEntry:
 class MealEntriesDB:
     def __init__(self):
         # Connect to DB (or create one if none exists)
-        self.conn = sqlite3.connect("calorie_app")
+        self.conn = sqlite3.connect("calorie_app", timeout=15)
+        atexit.register(lambda: self.conn.close)  #  for when 'with' not used
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE if not exists meal_entries(
                           meal_id text,
@@ -81,4 +82,21 @@ class MealEntriesDB:
                 meal = mdb.get_meal_by_id(meal_id)
                 ret.append(MealEntry(name=meal.name, meal=meal, portion=portion, date=date))
         return ret
+
+    def get_first_last_dates(self) -> tuple[dt.date, dt.date]:
+        """Get the first and the last date of all entries"""
+        def _str2iso(string):
+            """Helper function turning strings to iso format date objects"""
+            return dt.strptime(string, '%Y-%m-%d').date()
+
+        cmd = f'SELECT MIN(date), MAX(date) FROM meal_entries'
+        self.cursor.execute(cmd)
+        start, end = self.cursor.fetchone()
+        if not any((start, end)):
+            today = _str2iso(dt.now().date().isoformat())
+            return today, today
+
+        start, end = _str2iso(start) - timedelta(days=1),  _str2iso(end)
+        return start, end
+
 
