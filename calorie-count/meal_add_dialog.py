@@ -36,7 +36,7 @@ class MealAddDialog(MDDialog):
         self.clear_button = MDFillRoundFlatIconButton(text="Clear selection", icon="undo",
                                                       on_press=self.on_clear_meal_button_pressed)
         # content
-        self.content = MDBoxLayout(orientation="vertical", size_hint_y=None, height=self.root_window.height * .6)
+        self.content = MDBoxLayout(orientation="vertical", size_hint_y=None, height=self.root_window.height * .4)
 
         # meal name
         self.meal_name = MDTextField(hint_text="Enter name of the meal", icon_right="food-variant")
@@ -81,9 +81,14 @@ class MealAddDialog(MDDialog):
         errors = []
         sum_inputs = self._sum_inputs()
 
+        if not all((self.protein.text , self.fats.text, self.carbs)):
+            errors.append('Must enter Protein Fats and Carbs!')
+
         if self.is_percent_switch.active:
             if sum_inputs > 100:
                 errors.append(f'Sum of inputs exceeds 100% ({sum_inputs}%)')
+            if not self.meal_portion.text:
+                self.meal_portion.text = '100'
 
         if not self.allow_nameless and not self.meal_name.text:
             errors.append('No Meal Name was entered')
@@ -110,15 +115,15 @@ class MealAddDialog(MDDialog):
         if errors:
             toast('\n'.join(errors))
         else:
-            portion = 100 if self.is_percent_switch.active else self._sum_inputs()
+            portion = self.meal_portion.text if self.is_percent_switch.active else self._sum_inputs()
             with MealDB() as mdb:
                 meal = Meal(name=self.meal_name.text,
-                            portion=portion,
+                            portion=float(portion),
                             proteins=float(self.protein.text),
                             fats=float(self.fats.text),
                             carbs=float(self.carbs.text),
-                            sugar=float(self.sugar.text),
-                            sodium=float(self.salt.text))
+                            sugar=float(self.sugar.text or 0),
+                            sodium=float(self.salt.text or 0))
                 mdb.add_meal(meal)
                 self.last_submission = meal
                 toast(f'Meal {meal.name} added!')

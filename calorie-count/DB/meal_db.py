@@ -20,6 +20,9 @@ class Meal:
     id: str = field(default=None)
 
     def __post_init__(self):
+        self.portion = self.portion or 0
+        self.sodium = self.sodium or 0
+        self.sugar  = self.sugar or 0
         self.id = self.name or dt.now().isoformat()
 
     @property
