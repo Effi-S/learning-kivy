@@ -1,6 +1,9 @@
 """This Module holds a class MealAddDialog
     - The dialog/pop-up of our calorie App that asks the user to input a new meal."""
 from __future__ import annotations
+
+import re
+
 from kivymd.toast import toast
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton
@@ -14,12 +17,24 @@ from DB.meal_db import MealDB, Meal
 
 class FloatMDTextField(MDTextField):
     """TextField Input that only allows float input (0-9 or single dot)."""
+
     def insert_text(self, s, from_undo=False):
         if not s.isnumeric():
             if s != '.' or '.' in self.text:
                 toast('Only numbers!')
                 s = ''
         return super().insert_text(s, from_undo=from_undo)
+
+
+class RTLMDTextField(MDTextField):
+    """TextField Input that allows rtl."""
+    _reg = re.compile(r'[a-zA-Z]')
+
+    def insert_text(self, s, from_undo=False):
+        if s.isalpha() and not self._reg.findall(s):
+            self.text = s + self.text
+            return super().insert_text('', from_undo=from_undo)
+        return super().insert_text('s', from_undo=from_undo)
 
 
 class MealAddDialog(MDDialog):
@@ -39,7 +54,8 @@ class MealAddDialog(MDDialog):
         self.content = MDBoxLayout(orientation="vertical", size_hint_y=None, height=self.root_window.height * .4)
 
         # meal name
-        self.meal_name = MDTextField(hint_text="Enter name of the meal", icon_right="food-variant")
+        self.meal_name = RTLMDTextField(hint_text="Enter name of the meal",
+                                        font_name='Arial', icon_right="food-variant")
         self.content.add_widget(self.meal_name)
 
         # accumulative/percent switch
@@ -81,7 +97,7 @@ class MealAddDialog(MDDialog):
         errors = []
         sum_inputs = self._sum_inputs()
 
-        if not all((self.protein.text , self.fats.text, self.carbs)):
+        if not all((self.protein.text, self.fats.text, self.carbs)):
             errors.append('Must enter Protein Fats and Carbs!')
 
         if self.is_percent_switch.active:
@@ -118,9 +134,9 @@ class MealAddDialog(MDDialog):
 
         if self.is_percent_switch.active:
             portion = float(self.meal_portion.text)
-            self.protein.text =  (float(self.protein.text)/100)*portion
-            self.fats.text =  (float(self.fats.text)/100)*portion
-            self.carbs.text =  (float(self.carbs.text)/100)*portion
+            self.protein.text = (float(self.protein.text) / 100) * portion
+            self.fats.text = (float(self.fats.text) / 100) * portion
+            self.carbs.text = (float(self.carbs.text) / 100) * portion
         else:
             portion = float(self._sum_inputs())
 

@@ -16,6 +16,7 @@ class MealEntry:
     portion: float = field(default=None)
     date: str = field(default=None)
     meal: Meal = field(default=None)
+    id: str = field(default=None)  # The ID is added only when the entry is added to the DB
 
     def __post_init__(self):
         assert self.name or self.meal, 'name or meal missing'
@@ -57,7 +58,8 @@ class MealEntriesDB:
         self.cursor.execute('''CREATE TABLE if not exists meal_entries(
                           meal_id text,
                           portion real,
-                          date text
+                          date text,
+                          id text
                           )''')
         self.conn.commit()
 
@@ -68,8 +70,10 @@ class MealEntriesDB:
         self.conn.close()
 
     def add_meal_entry(self, entry: MealEntry):
-        self.cursor.execute(f"INSERT INTO meal_entries Values ('{entry.meal.id}', {entry.portion}, '{entry.date}')",
-                            {'meal_id': entry.meal.id, 'portion': entry.portion, 'date': entry.date})
+        entry.id = dt.now().isoformat()
+        self.cursor.execute(f"INSERT INTO meal_entries Values ('{entry.meal.id}', {entry.portion}, "
+                            f"'{entry.date}', '{entry.id}')",
+                            {'meal_id': entry.meal.id, 'portion': entry.portion, 'date': entry.date, 'id': entry.id})
         self.conn.commit()
 
     def get_entries_between_dates(self, start_date: str, end_date: str) -> list[MealEntry]:
@@ -78,9 +82,9 @@ class MealEntriesDB:
         ret = []
         for entry in self.cursor.fetchall():
             with MealDB() as mdb:
-                meal_id, portion, date = entry
+                meal_id, portion, date, e_id = entry
                 meal = mdb.get_meal_by_id(meal_id)
-                ret.append(MealEntry(name=meal.name, meal=meal, portion=portion, date=date))
+                ret.append(MealEntry(name=meal.name, meal=meal, portion=portion, date=date, id=e_id))
         return ret
 
     def get_first_last_dates(self) -> tuple[dt.date, dt.date]:
@@ -99,4 +103,10 @@ class MealEntriesDB:
         start, end = _str2iso(start) - timedelta(days=1),  _str2iso(end)
         return start, end
 
+    def delete_entry(self, time_stamp: str) -> None:
+        """remove an entry based on it's id """
+        cmd = 'DELETE FROM meal_entries ' \
+              f"WHERE `id` = '{time_stamp}'"
+        self.cursor.execute(cmd)
+        self.conn.commit()
 

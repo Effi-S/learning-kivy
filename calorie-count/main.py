@@ -3,10 +3,12 @@ from __future__ import annotations
 import configparser
 import os
 
+from kivymd.uix.label import MDIcon
+
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
 
 from plotting import plot_pie_chart, plot_graph
-from kivymd.uix.list import TwoLineAvatarIconListItem
+from kivymd.uix.list import TwoLineAvatarIconListItem, IconLeftWidget, IconRightWidget, MDList
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
@@ -47,20 +49,48 @@ class CaloriesApp(MDApp):
         self.theme_cls.primary_palette = parser.get(THEME, 'primary_palette', fallback="BlueGray")
 
         Clock.schedule_once(lambda x: self.on_my_meals_screen_pressed())  # loading table
+        from kivy.core.window import Window
+        Window.size = (500, 700)
         return Builder.load_file("kv_files/main.kv")
 
     def on_daily_screen_pressed(self, *args):
+        """Init Daily screen"""
+        self._init_daily_screen()
+
+    def _init_daily_screen(self, today: str = dt.now().date().isoformat()):
+
+        def on_item_press(entry_id: str, _item: TwoLineAvatarIconListItem, *a, **k):
+            """Callback for when list item pressed (Note: mutable default on purpose)"""
+
+            def on_del_icon_pressed(_icon: IconRightWidget, *_a, **_k):
+                """Callback for when delete icon on list item pressed."""
+                entry_list.remove_widget(_item)
+                with MealEntriesDB() as db:
+                    db.delete_entry(entry_id)
+                toast(f'{_item.text} Removed')
+
+            def _revert(*_a, **_k):
+                """Callback for returning back to normal."""
+                _item.bind(on_press=on_item_press)
+                icon_r.parent.remove_widget(icon_r)
+
+            icon_r = IconRightWidget(icon='delete', on_release=on_del_icon_pressed)
+            _item.add_widget(icon_r)
+            _item.unbind(on_press=on_item_press)
+            Clock.schedule_once(_revert, 5)
+
         with MealEntriesDB() as me_db:
-            today = dt.now().date().isoformat()
             entries = me_db.get_entries_between_dates(today, today)
-            cals = sum(e.meal.cals for e in entries)
-            self.root.ids.total_cals_label.text = f'{cals: .2f}'
-            entry_list = self.root.ids.daily_entries_list
-            entry_list.clear_widgets()
-            for i, entry in enumerate(entries, 1):
-                item = TwoLineAvatarIconListItem(text=entry.meal.name or f'Meal {i} (Unnamed)',
-                                                 secondary_text=f'Calories: {entry.meal.cals: .2f}')
-                entry_list.add_widget(item)
+        cals = sum(e.meal.cals for e in entries)
+
+        self.root.ids.total_cals_label.text = f'{cals: .2f}'
+        entry_list: MDList = self.root.ids.daily_entries_list
+        entry_list.clear_widgets()
+        for i, entry in enumerate(entries, 1):
+            item = TwoLineAvatarIconListItem(text=entry.meal.name or f'Meal {i} (Unnamed)',
+                                             secondary_text=f'Calories: {entry.meal.cals: .2f}',
+                                             on_press=lambda *a, **k: on_item_press(entry.id, *a, **k))
+            entry_list.add_widget(item)
 
     def on_my_meals_screen_pressed(self, *args):
         with MealDB() as mdb:

@@ -4,16 +4,17 @@ DONE - # Allow '.' in Add new meal dialog text fields
 DONE Add trends plotting
 
 DONE limit dates in datepicker
-# Allow remove meal entry
-
 Done Make theme picker save data to db
 	- Create AppData class wich connects to DB (load/write)
 
+DONE Allow remove meal entry
+# Add swiping days fwd/bkwd
+# Add search for Meal 
+# Add sodium and sugar to trends
+
 # Allow nameless meals? 
 # Fix Add new meal dialog text fields overlapping
-# Add search for Meal 
 # When only 1 meal entered to meals datatable is weird
-# Add sodium and sugar to trends
 
 
 Nice To Have
