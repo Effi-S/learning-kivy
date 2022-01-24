@@ -78,7 +78,6 @@ class MealEntriesDB:
 
     def get_entries_between_dates(self, start_date: str, end_date: str) -> list[MealEntry]:
         cmd = f'SELECT * FROM meal_entries WHERE date BETWEEN "{start_date}" AND "{end_date}"'
-        print(cmd)
         self.cursor.execute(cmd)
         ret = []
         for entry in self.cursor.fetchall():
