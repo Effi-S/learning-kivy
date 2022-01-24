@@ -276,6 +276,10 @@ class CaloriesApp(MDApp):
         pie_chart = plot_pie_chart(data)
         trends_layout.add_widget(pie_chart)
 
+    def on_search_meal_pressed(self, *args, **kwargs):
+        """ Search for a meal button pressed. """
+        print('on_search_meal_pressed')
+
     def show_theme_picker(self, *args, **kwargs):
 
         def _set_theme(*a, **k):
@@ -284,7 +288,6 @@ class CaloriesApp(MDApp):
                 'theme_style': self.theme_cls.theme_style,
                 'primary_palette': self.theme_cls.primary_palette,
                 'accent_palette': self.theme_cls.accent_palette,
-
             }
             with open(CONFIG, 'w+') as fl:
                 parser.write(fl)

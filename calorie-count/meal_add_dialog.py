@@ -34,7 +34,7 @@ class RTLMDTextField(MDTextField):
         if s.isalpha() and not self._reg.findall(s):
             self.text = s + self.text
             return super().insert_text('', from_undo=from_undo)
-        return super().insert_text('s', from_undo=from_undo)
+        return super().insert_text(s, from_undo=from_undo)
 
 
 class MealAddDialog(MDDialog):
