@@ -107,7 +107,8 @@ class MealDB:
         to_delete = [n for n in names if n not in to_clear_name]
 
         if to_delete:
-            cmd = f'DELETE FROM meals WHERE `name` in {it2str(to_delete)};'
+            cmd = f"""DELETE FROM meals 
+                    WHERE `name` in {it2str(to_delete)};"""
             print(cmd)
             self.cursor.execute(cmd)
             self.conn.commit()

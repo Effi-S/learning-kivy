@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import configparser
 import os
+import re
 
+from kivy.input.providers.mouse import MouseMotionEvent
 from kivymd.uix.label import MDIcon
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
@@ -25,7 +27,7 @@ from kivymd.app import MDApp
 from DB.meal_entry_db import MealEntriesDB, MealEntry
 
 from datetime import datetime as dt
-from datetime import timedelta
+from datetime import timedelta, date
 
 from utils import sort_by_similarity
 from meal_add_dialog import MealAddDialog
@@ -57,7 +59,34 @@ class CaloriesApp(MDApp):
         """Init Daily screen"""
         self._init_daily_screen()
 
-    def _init_daily_screen(self, today: str = dt.now().date().isoformat()):
+    def _find_day_in_daily_screen(self) -> date:
+        """Get a date object parsed from the label displayed in Daily screen"""
+        text = self.root.ids.total_cals_header_label.text
+        if 'today' in text.lower():
+            return dt.now().date()
+        elif 'yesterday' in text.lower():
+            return (dt.now() - timedelta(days=1)).date()
+        for day in re.findall(r'\d+-\d+-\d+', text):
+            return dt.fromisoformat(day).date()
+        toast('Error Getting day')
+
+    def on_prev_daily_pressed(self, *args):
+        """Previous day in Daily tab"""
+        day = self._find_day_in_daily_screen() - timedelta(days=1)
+        self._init_daily_screen(day)
+
+    def on_next_daily_pressed(self, *args):
+        """Next day in Daily tab"""
+        day = self._find_day_in_daily_screen() + timedelta(days=1)
+        if day > dt.now().date():
+            return
+        self._init_daily_screen(day)
+
+    def _init_daily_screen(self, day: date = dt.now().date()):
+        # -- Set label
+        today, one_day = dt.now().date(), timedelta(days=1)
+        day_lbl = 'Today' if day == today else 'Yesterday' if day == today - one_day else day.isoformat()
+        self.root.ids.total_cals_header_label.text = f'Total Calories {day_lbl}'
 
         def on_item_press(entry_id: str, _item: TwoLineAvatarIconListItem, *a, **k):
             """Callback for when list item pressed (Note: mutable default on purpose)"""
@@ -80,7 +109,7 @@ class CaloriesApp(MDApp):
             Clock.schedule_once(_revert, 5)
 
         with MealEntriesDB() as me_db:
-            entries = me_db.get_entries_between_dates(today, today)
+            entries = me_db.get_entries_between_dates(day.isoformat(), day.isoformat())
         cals = sum(e.meal.cals for e in entries)
 
         self.root.ids.total_cals_label.text = f'{cals: .2f}'
@@ -221,26 +250,31 @@ class CaloriesApp(MDApp):
         with MealEntriesDB() as me_db:
             entries = me_db.get_entries_between_dates(str(start_date), str(end_date))
 
+        trends_layout = self.root.ids.trends_screen.ids.trends_layout
+        trends_layout.clear_widgets()
+        # -- Adding Graph of calorie sum
+        data = dict.fromkeys((e.date for e in entries), 0)
+        for e in entries:
+            data[e.date] += e.meal.cals
+
+        graph = plot_graph(data, y_label='Calories')
+        trends_layout.add_widget(graph)
+
+        # -- Adding Graph of sodium
+        data = dict.fromkeys((e.date for e in entries), 0)
+        for e in entries:
+            data[e.date] += e.meal.sodium
+        graph = plot_graph(data, y_label='Sodium')
+        trends_layout.add_widget(graph)
+
         # -- Adding Pie Chart
-        trend_pie_chart_layout = self.root.ids.trends_screen.ids.trend_pie_chart_layout
-        trend_pie_chart_layout.clear_widgets()
         data = {
             'Protein': sum(e.meal.proteins for e in entries),
             'Carbs': sum(e.meal.carbs for e in entries),
             'Fats': sum(e.meal.fats for e in entries)
         }
         pie_chart = plot_pie_chart(data)
-        trend_pie_chart_layout.add_widget(pie_chart)
-
-        # -- Adding Graph
-        trend_chart_layout = self.root.ids.trends_screen.ids.trend_chart_layout
-        trend_chart_layout.clear_widgets()
-        data = dict.fromkeys((e.date for e in entries), 0)
-        for e in entries:
-            data[e.date] += e.meal.cals
-
-        graph = plot_graph(data, y_label='Calories')
-        trend_chart_layout.add_widget(graph)
+        trends_layout.add_widget(pie_chart)
 
     def show_theme_picker(self, *args, **kwargs):
 

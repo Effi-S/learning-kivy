@@ -53,7 +53,7 @@ class MealEntriesDB:
     def __init__(self):
         # Connect to DB (or create one if none exists)
         self.conn = sqlite3.connect("calorie_app", timeout=15)
-        atexit.register(lambda: self.conn.close)  #  for when 'with' not used
+        atexit.register(lambda: self.conn.close())  # In-case 'with' not used
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE if not exists meal_entries(
                           meal_id text,
@@ -78,6 +78,7 @@ class MealEntriesDB:
 
     def get_entries_between_dates(self, start_date: str, end_date: str) -> list[MealEntry]:
         cmd = f'SELECT * FROM meal_entries WHERE date BETWEEN "{start_date}" AND "{end_date}"'
+        print(cmd)
         self.cursor.execute(cmd)
         ret = []
         for entry in self.cursor.fetchall():
@@ -107,6 +108,7 @@ class MealEntriesDB:
         """remove an entry based on it's id """
         cmd = 'DELETE FROM meal_entries ' \
               f"WHERE `id` = '{time_stamp}'"
+        print(cmd)
         self.cursor.execute(cmd)
         self.conn.commit()
 

@@ -21,8 +21,8 @@
             icon: 'chart-box'
             md_bg_color: app.theme_cls.primary_color
             on_release: app.generate_trend(*args)
-    MDBoxLayout:
-        id: trend_chart_layout
-    MDBoxLayout:
-        id: trend_pie_chart_layout
+    ScrollView:
+        MDBoxLayout:
+            orientation: 'vertical'
+            id: trends_layout
 

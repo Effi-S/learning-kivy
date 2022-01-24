@@ -27,7 +27,6 @@ def plot_pie_chart(data: dict[str, float]) -> AKPieChart:
     sum_values = sum(data.values())
     leftover = 100 - sum_values
     data[list(data.keys())[-1]] += leftover
-    print(data)
 
     chart = AKPieChart(
         items=[data],
