@@ -13,6 +13,7 @@ DONE Add sodium to trends
 
 # Add search for Meal
 
+# swap akivmd w/ matplotlib
 # Allow nameless meals? 
 # Fix Add new meal dialog text fields overlapping?
 

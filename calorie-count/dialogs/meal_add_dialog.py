@@ -13,6 +13,7 @@ from kivymd.uix.selectioncontrol import MDSwitch
 from kivymd.uix.textfield import MDTextField
 
 from DB.meal_db import MealDB, Meal
+from utils import RTLMDTextField
 
 
 class FloatMDTextField(MDTextField):
@@ -26,26 +27,16 @@ class FloatMDTextField(MDTextField):
         return super().insert_text(s, from_undo=from_undo)
 
 
-class RTLMDTextField(MDTextField):
-    """TextField Input that allows rtl."""
-    _reg = re.compile(r'[a-zA-Z]')
-
-    def insert_text(self, s, from_undo=False):
-        if s.isalpha() and not self._reg.findall(s):
-            self.text = s + self.text
-            return super().insert_text('', from_undo=from_undo)
-        return super().insert_text(s, from_undo=from_undo)
-
 
 class MealAddDialog(MDDialog):
     """A dialog/pop-up asking the user to add a new Meal."""
     last_submission: Meal = None  # Here we can store the last Meal submission
 
-    def __init__(self, root_window, allow_nameless: bool = False, **kwargs):
+    def __init__(self, app, allow_nameless: bool = False, **kwargs):
 
         self.allow_nameless = allow_nameless
         # dialog buttons
-        self.root_window = root_window
+        self.root_window = app.root_window
         self.submit_button = MDFillRoundFlatIconButton(text="Submit Meal", icon="basket-plus",
                                                        on_press=self.on_submit_meal_button_pressed)
         self.clear_button = MDFillRoundFlatIconButton(text="Clear selection", icon="undo",
@@ -85,7 +76,7 @@ class MealAddDialog(MDDialog):
         for x in (self.salt, self.sugar):
             inner_content.add_widget(x)
         self.content.add_widget(inner_content)
-
+        self.bind(on_dismiss=app.on_my_meals_screen_pressed)
         # building the dialog
         super().__init__(title='Add A new Meal', type='custom',
                          content_cls=self.content,

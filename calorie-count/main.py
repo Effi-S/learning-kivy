@@ -4,13 +4,13 @@ import configparser
 import os
 import re
 
-from kivy.input.providers.mouse import MouseMotionEvent
-from kivymd.uix.label import MDIcon
+from daily_screen import init_daily_screen
+from dialogs.meal_search_dialog import MealSearchDialog
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
 
 from plotting import plot_pie_chart, plot_graph
-from kivymd.uix.list import TwoLineAvatarIconListItem, IconLeftWidget, IconRightWidget, MDList
+from kivymd.uix.list import TwoLineAvatarIconListItem, IconRightWidget, MDList
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
@@ -30,7 +30,7 @@ from datetime import datetime as dt
 from datetime import timedelta, date
 
 from utils import sort_by_similarity
-from meal_add_dialog import MealAddDialog
+from dialogs.meal_add_dialog import MealAddDialog
 from DB.meal_db import Meal, MealDB
 
 CONFIG, THEME = 'DB/config.ini', 'THEME'
@@ -57,7 +57,7 @@ class CaloriesApp(MDApp):
 
     def on_daily_screen_pressed(self, *args):
         """Init Daily screen"""
-        self._init_daily_screen()
+        init_daily_screen(self)
 
     def _find_day_in_daily_screen(self) -> date:
         """Get a date object parsed from the label displayed in Daily screen"""
@@ -73,53 +73,14 @@ class CaloriesApp(MDApp):
     def on_prev_daily_pressed(self, *args):
         """Previous day in Daily tab"""
         day = self._find_day_in_daily_screen() - timedelta(days=1)
-        self._init_daily_screen(day)
+        init_daily_screen(self, day)
 
     def on_next_daily_pressed(self, *args):
         """Next day in Daily tab"""
         day = self._find_day_in_daily_screen() + timedelta(days=1)
         if day > dt.now().date():
             return
-        self._init_daily_screen(day)
-
-    def _init_daily_screen(self, day: date = dt.now().date()):
-        # -- Set label
-        today, one_day = dt.now().date(), timedelta(days=1)
-        day_lbl = 'Today' if day == today else 'Yesterday' if day == today - one_day else day.isoformat()
-        self.root.ids.total_cals_header_label.text = f'Total Calories {day_lbl}'
-
-        def on_item_press(entry_id: str, _item: TwoLineAvatarIconListItem, *a, **k):
-            """Callback for when list item pressed (Note: mutable default on purpose)"""
-
-            def on_del_icon_pressed(_icon: IconRightWidget, *_a, **_k):
-                """Callback for when delete icon on list item pressed."""
-                entry_list.remove_widget(_item)
-                with MealEntriesDB() as db:
-                    db.delete_entry(entry_id)
-                toast(f'{_item.text} Removed')
-
-            def _revert(*_a, **_k):
-                """Callback for returning back to normal."""
-                _item.bind(on_press=on_item_press)
-                icon_r.parent.remove_widget(icon_r)
-
-            icon_r = IconRightWidget(icon='delete', on_release=on_del_icon_pressed)
-            _item.add_widget(icon_r)
-            _item.unbind(on_press=on_item_press)
-            Clock.schedule_once(_revert, 5)
-
-        with MealEntriesDB() as me_db:
-            entries = me_db.get_entries_between_dates(day.isoformat(), day.isoformat())
-        cals = sum(e.meal.cals for e in entries)
-
-        self.root.ids.total_cals_label.text = f'{cals: .2f}'
-        entry_list: MDList = self.root.ids.daily_entries_list
-        entry_list.clear_widgets()
-        for i, entry in enumerate(entries, 1):
-            item = TwoLineAvatarIconListItem(text=entry.meal.name or f'Meal {i} (Unnamed)',
-                                             secondary_text=f'Calories: {entry.meal.cals: .2f}',
-                                             on_press=lambda *a, **k: on_item_press(entry.id, *a, **k))
-            entry_list.add_widget(item)
+        init_daily_screen(self, day)
 
     def on_my_meals_screen_pressed(self, *args):
         with MealDB() as mdb:
@@ -140,8 +101,7 @@ class CaloriesApp(MDApp):
 
     def on_add_meal_pressed(self, *args):
         if not self.add_meal_dialog:
-            self.add_meal_dialog = MealAddDialog(self.root_window)
-            self.add_meal_dialog.bind(on_dismiss=self.on_my_meals_screen_pressed)
+            self.add_meal_dialog = MealAddDialog(self)
         self.add_meal_dialog.open()
 
     def on_trends_pressed(self, *args, _once=[]):  # Note: mutable default parameter is on purpose here
@@ -278,7 +238,8 @@ class CaloriesApp(MDApp):
 
     def on_search_meal_pressed(self, *args, **kwargs):
         """ Search for a meal button pressed. """
-        print('on_search_meal_pressed')
+        dialog = MealSearchDialog(self)
+        dialog.open()
 
     def show_theme_picker(self, *args, **kwargs):
 
