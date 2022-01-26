@@ -154,7 +154,7 @@ class CaloriesApp(MDApp):
                         entries.add_meal_entry(entry)
                         toast(f'Added Meal entry!\n({entry}')
 
-            dialog = MealAddDialog(self.root_window)
+            dialog = MealAddDialog(self)
             dialog.meal_name.text, dialog.title = name, f'"{name}" not in Meals, Please add it below:'
             dialog.open()
             dialog.bind(on_dismiss=add_nameless_submission)
