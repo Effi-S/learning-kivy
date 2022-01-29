@@ -1,15 +1,11 @@
 """This Module holds a class MealAddDialog
     - The dialog/pop-up of our calorie App that asks the user to input a new meal."""
 from __future__ import annotations
-
-import re
-
 from kivymd.toast import toast
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.label import MDLabel
-from kivymd.uix.selectioncontrol import MDSwitch
+from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.textfield import MDTextField
 
 from DB.meal_db import MealDB, Meal
@@ -25,7 +21,6 @@ class FloatMDTextField(MDTextField):
                 toast('Only numbers!')
                 s = ''
         return super().insert_text(s, from_undo=from_undo)
-
 
 
 class MealAddDialog(MDDialog):
@@ -49,31 +44,17 @@ class MealAddDialog(MDDialog):
                                         font_name='Arial', icon_right="food-variant")
         self.content.add_widget(self.meal_name)
 
-        # accumulative/percent switch
-        inner_content = MDBoxLayout(orientation="horizontal", size_hint=(1, .2))
-        self.is_percent_label = MDLabel(text='Percentage(%)/Accumulative(g)')
-        self.is_percent_switch = MDSwitch(on_touch_up=self._on_percent_switch_touch_up,
-                                          pos_hint={'y': .05})
-        inner_content.add_widget(self.is_percent_label)
-        inner_content.add_widget(self.is_percent_switch)
-        self.content.add_widget(inner_content)
-
         # meal portion
         self.meal_portion = MDTextField(hint_text="Enter Portion (g) of the meal", icon_right="scale")
 
-        inner_content = MDBoxLayout(orientation="horizontal")
+        inner_content = MDGridLayout(cols=2)
         self.protein = FloatMDTextField(hint_text="Proteins (g)", icon_right='food-steak')
         self.fats = FloatMDTextField(hint_text="Fats (g)", icon_right='fish')
         self.carbs = FloatMDTextField(hint_text="Carbs (g)", icon_right='pasta')
-        for x in (self.protein, self.fats, self.carbs):
-            inner_content.add_widget(x)
-        self.content.add_widget(inner_content)
-
-        # fifth line - more text fields
-        self.sugar = FloatMDTextField(hint_text="Sugar (g)", icon_right='food-apple')
-        self.salt = FloatMDTextField(hint_text="Salt (mg)", icon_right='shaker')
-        inner_content = MDBoxLayout(orientation="horizontal")
-        for x in (self.salt, self.sugar):
+        self.water = FloatMDTextField(hint_text="Water (g)", icon_right='water-outline', text='0')
+        self.sugar = FloatMDTextField(hint_text="Sugar (g)", icon_right='food-apple-outline', text='0')
+        self.salt = FloatMDTextField(hint_text="Salt (mg)", icon_right='shaker-outline')
+        for x in (self.protein, self.fats, self.carbs, self.water, self.sugar, self.salt):
             inner_content.add_widget(x)
         self.content.add_widget(inner_content)
         self.bind(on_dismiss=app.on_my_meals_screen_pressed)
@@ -86,16 +67,9 @@ class MealAddDialog(MDDialog):
     def check_errors(self) -> list[str]:
         """ Make sure input is ok before adding meal to DB"""
         errors = []
-        sum_inputs = self._sum_inputs()
 
         if not all((self.protein.text, self.fats.text, self.carbs)):
             errors.append('Must enter Protein Fats and Carbs!')
-
-        if self.is_percent_switch.active:
-            if sum_inputs > 100:
-                errors.append(f'Sum of inputs exceeds 100% ({sum_inputs}%)')
-            if not self.meal_portion.text:
-                self.meal_portion.text = '100'
 
         if not self.allow_nameless and not self.meal_name.text:
             errors.append('No Meal Name was entered')
@@ -108,7 +82,7 @@ class MealAddDialog(MDDialog):
 
     def _sum_inputs(self) -> float:
         """Get the sum in grams of all of the text fields of the dialog that receive."""
-        gram_inputs = (self.protein, self.fats, self.carbs, self.sugar)
+        gram_inputs = (self.protein, self.fats, self.carbs, self.water)
         mg_inputs = (self.salt,)
         sum_grams = sum(float(x.text) for x in gram_inputs if x.text)
         sum_mg = sum(float(x.text) / 1000 for x in mg_inputs if x.text)
@@ -123,13 +97,7 @@ class MealAddDialog(MDDialog):
             toast('\n'.join(errors))
             return
 
-        if self.is_percent_switch.active:
-            portion = float(self.meal_portion.text)
-            self.protein.text = (float(self.protein.text) / 100) * portion
-            self.fats.text = (float(self.fats.text) / 100) * portion
-            self.carbs.text = (float(self.carbs.text) / 100) * portion
-        else:
-            portion = float(self._sum_inputs())
+        portion = float(self._sum_inputs())
 
         with MealDB() as mdb:
             meal = Meal(name=self.meal_name.text,
@@ -138,7 +106,9 @@ class MealAddDialog(MDDialog):
                         fats=float(self.fats.text),
                         carbs=float(self.carbs.text),
                         sugar=float(self.sugar.text or 0),
-                        sodium=float(self.salt.text or 0))
+                        sodium=float(self.salt.text or 0),
+                        water=float(self.water.text or 0)
+                        )
             mdb.add_meal(meal)
             self.last_submission = meal
             toast(f'Meal {meal.name} added!')
@@ -146,21 +116,5 @@ class MealAddDialog(MDDialog):
     def on_clear_meal_button_pressed(self, *args):
         """Clear all the selections."""
         for x in (self.meal_name, self.meal_portion, self.protein, self.fats,
-                  self.carbs, self.salt, self.sugar):
+                  self.carbs, self.salt, self.sugar, self.water):
             x.text = ''
-
-    def _on_percent_switch_touch_up(self, *args):
-        """Swapping from accumulative to percent method."""
-        inputs = (self.protein, self.fats, self.carbs, self.salt, self.sugar)
-        if self.is_percent_switch.active:
-            if not self.meal_portion.parent:
-                self.content.add_widget(self.meal_portion, index=3)
-            self.is_percent_label.text = 'Percentage(%)'
-            for x in inputs:
-                x.hint_text = x.hint_text.replace('(g)', '(%)').replace('(mg)', '(mg/100g)')
-        else:
-            self.is_percent_label.text = 'Accumulative(g)'
-            if self.meal_portion.parent:
-                self.content.remove_widget(self.meal_portion)
-            for x in inputs:
-                x.hint_text = x.hint_text.replace('(%)', '(g)').replace('(mg/100g)', '(mg)')

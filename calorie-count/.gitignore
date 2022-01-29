@@ -2,3 +2,4 @@ __pycache__
 __pycache__/*
 calorie_app
 FoodData_Central_sr_legacy_food_json_2021-10-28.json
+*.json

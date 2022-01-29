@@ -18,12 +18,14 @@ class Meal:
     carbs: float  # (g)
     sugar: float  # (g)
     sodium: float  # (mg)
+    water: float  # (g)
     id: str = field(default=None)
 
     def __post_init__(self):
         self.portion = self.portion or 0
         self.sodium = self.sodium or 0
         self.sugar = self.sugar or 0
+        self.water = self.water or 0
         self.id = self.name or dt.now().isoformat()
 
     @property
@@ -34,7 +36,8 @@ class Meal:
     @staticmethod
     def columns() -> tuple[str, ...]:
         """Get all the column headers for representing a Meal to the customer."""
-        return 'Name', 'Portion (g)', 'Protein (g)', 'Fats (g)', 'Carbs (g)', 'Sugar (g)', 'Sodium (mg)', 'Calories'
+        return 'Name', 'Portion (g)', 'Protein (g)', 'Fats (g)', 'Carbs (g)',\
+               'Sugar (g)', 'Sodium (mg)', 'Water (g)', 'Calories'
 
     @property
     def values(self) -> list[str]:
@@ -56,6 +59,7 @@ class MealDB:
                                 carbs real,
                                 sugar real,
                                 sodium real, 
+                                water real,
                                 id text
                             )''')
         self.conn.commit()
