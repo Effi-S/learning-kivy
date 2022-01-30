@@ -4,7 +4,7 @@ from kivy.clock import Clock
 from kivymd.toast import toast
 from kivymd.uix.list import MDList, TwoLineAvatarIconListItem, IconRightWidget
 
-from DB.meal_entry_db import MealEntriesDB, MealEntry
+from db.meal_entry_db import MealEntriesDB, MealEntry
 
 
 class ListEntry(TwoLineAvatarIconListItem):

@@ -24,14 +24,14 @@ from kivymd.uix.datatables import MDDataTable
 from kivy.lang import Builder
 from kivymd.app import MDApp
 
-from DB.meal_entry_db import MealEntriesDB, MealEntry
+from db.meal_entry_db import MealEntriesDB, MealEntry
 
 from datetime import datetime as dt
 from datetime import timedelta, date
 
 from utils import sort_by_similarity
 from dialogs.meal_add_dialog import MealAddDialog
-from DB.meal_db import Meal, MealDB
+from db.meal_db import Meal, MealDB
 
 CONFIG, THEME = 'DB/config.ini', 'THEME'
 

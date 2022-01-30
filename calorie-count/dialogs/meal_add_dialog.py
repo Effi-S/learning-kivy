@@ -8,7 +8,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.textfield import MDTextField
 
-from DB.meal_db import MealDB, Meal
+from db.meal_db import MealDB, Meal
 from utils import RTLMDTextField
 
 

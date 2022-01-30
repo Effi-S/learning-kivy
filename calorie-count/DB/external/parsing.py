@@ -1,4 +1,5 @@
-"""This module is used to parse external data and add them to the DB for the app."""
+"""This module is used to parse external data and add them to the DB for the app.
+This is a standalone script that should not be imported"""
 from __future__ import annotations
 from __future__ import absolute_import
 import os
