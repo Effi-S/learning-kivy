@@ -52,7 +52,7 @@ if __name__ == '__main__':
                'FoodData_Central_branded_food_json_2021-10-28.json': 'BrandedFoods',
                }
     db_dict = {os.path.abspath(k): v for k, v in db_dict.items()}
-    with ExternalFoodsDB() as fdb:
+    with ExternalFoodsDB(locally=True) as fdb:
         start = time.perf_counter()
         for path, header in db_dict.items():
             for f in parse_foods_foundation(path, header):

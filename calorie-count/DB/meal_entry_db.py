@@ -6,7 +6,7 @@ from dataclasses import dataclass, field, InitVar, asdict
 from datetime import datetime as dt, timedelta
 from typing import Iterable
 import atexit
-from db.meal_db import Meal, MealDB
+from DB.meal_db import Meal, MealDB
 
 
 @dataclass

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import atexit
+import os
 import sqlite3
 from dataclasses import dataclass, asdict, astuple
 from typing import Generator
@@ -31,8 +32,11 @@ class FoodData:
 
 
 class ExternalFoodsDB:
-    def __init__(self):
-        self.conn = sqlite3.connect('external_foods')
+    def __init__(self, locally: bool = False):
+        db = 'DB/external/external_foods'
+        if locally:
+            db = 'external_foods'
+        self.conn = sqlite3.connect(db)
         atexit.register(lambda: self.conn.close())  # In-case 'with' not used
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE if not exists foods(

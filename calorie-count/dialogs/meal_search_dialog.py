@@ -4,6 +4,8 @@ from __future__ import annotations
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFillRoundFlatIconButton, MDFloatingActionButton, MDFlatButton, MDIconButton
 from kivymd.uix.dialog import MDDialog
+
+from DB.external.client import ExternalFoodsDB
 from utils import RTLMDTextField
 
 
@@ -48,5 +50,7 @@ class MealSearchDialog(MDDialog):
         to_search = self.search_input_field.text
         if not to_search:
             return
-
+        with ExternalFoodsDB() as ef_db:
+            for food in ef_db.get_similar_food_by_name(to_search):
+                print(food)
         print('run_search pressed:', to_search)
