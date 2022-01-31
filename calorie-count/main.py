@@ -10,7 +10,6 @@ from dialogs.meal_search_dialog import MealSearchDialog
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
 
 from plotting import plot_pie_chart, plot_graph
-from kivymd.uix.list import TwoLineAvatarIconListItem, IconRightWidget, MDList
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
