@@ -10,6 +10,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import ThreeLineAvatarListItem, MDList, IconLeftWidget
 
 from DB.external.client import ExternalFoodsDB, FoodData
+from dialogs.meal_add_dialog import MealAddDialog
 from utils import RTLMDTextField
 
 
@@ -17,12 +18,15 @@ class MealSearchDialog(MDDialog):
     """A dialog/pop-up asking the user to search for a new Meal."""
 
     def __init__(self, app, **kwargs):
+        self.app = app
         # dialog buttons
         self.root_window = app.root_window
         self.return_button = MDFillRoundFlatIconButton(text="Return", icon="undo",
                                                        on_press=self.dismiss)
         # content
-        self.content = MDBoxLayout(orientation="vertical", size_hint_y=None, height=self.root_window.height * .4)
+        self.content = MDBoxLayout(orientation="vertical",
+                                   size_hint_y=None,
+                                   height=self.root_window.height * .6)
 
         # Search Bar
         search_bar_layout = MDBoxLayout()
@@ -40,12 +44,12 @@ class MealSearchDialog(MDDialog):
         self.content.add_widget(search_bar_layout)
 
         # Search results
-        results_layout = MDBoxLayout(orientation="horizontal", pos_hint={'center_y': 0.9}, size_hint_y=0.9)
-        results_scroll = ScrollView(pos_hint={'center_y': 0.9})
-        results_layout.add_widget(results_scroll)
-        self.list_results = MDList(pos_hint={'center_y': 0.9})
+        results_scroll = ScrollView(size_hint_y=None,
+                                    height=self.root_window.height * .6
+                                    )
+        self.list_results = MDList()
         results_scroll.add_widget(self.list_results)
-        self.content.add_widget(results_layout)
+        self.content.add_widget(results_scroll)
 
         # building the dialog
         super().__init__(type='custom',
@@ -74,8 +78,24 @@ class MealSearchDialog(MDDialog):
         with ExternalFoodsDB() as ef_db:
             for food in ef_db.get_similar_food_by_name(to_search):
                 title, *desc = food.description.split(',')
-                tertiary = f'Protein: {food.protein}, Fat: {food.fats}, Carbs: {food.carbs},' \
+                tertiary = f'Protein: {food.protein}, Fat: {food.fats}, Carbs: {food.carbs}\n' \
                            f' Sodium: {food.sodium}, Sugar: {food.sugar}, Water: {food.water}'
                 list_item = ThreeLineAvatarListItem(text=title, secondary_text=",".join(desc), tertiary_text=tertiary)
                 list_item.add_widget(IconLeftWidget(icon=_icon_from_food(food)))
+                list_item.bind(on_press=lambda *a, **k: self.add_food(food))
                 self.list_results.add_widget(list_item)
+
+    def add_food(self, food: FoodData):
+        self.dismiss()
+        dialog = MealAddDialog(self.app)
+        title, *desc = food.description.split(',')
+        dialog.meal_name.text = str(title)
+        dialog.protein.text = str(food.protein)
+        dialog.fats.text = str(food.fats)
+        dialog.carbs.text = str(food.carbs)
+        dialog.salt.text = str(food.sodium)
+        dialog.sugar.text = str(food.sugar)
+        dialog.water.text = str(food.water)
+        dialog.open()
+
+
