@@ -82,7 +82,7 @@ class MealSearchDialog(MDDialog):
                            f' Sodium: {food.sodium}, Sugar: {food.sugar}, Water: {food.water}'
                 list_item = ThreeLineAvatarListItem(text=title, secondary_text=",".join(desc), tertiary_text=tertiary)
                 list_item.add_widget(IconLeftWidget(icon=_icon_from_food(food)))
-                list_item.bind(on_press=lambda *a, **k: self.add_food(food))
+                list_item.bind(on_press=lambda *a, f=food, **k: self.add_food(f))
                 self.list_results.add_widget(list_item)
 
     def add_food(self, food: FoodData):
