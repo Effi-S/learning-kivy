@@ -119,6 +119,8 @@ class CaloriesApp(MDApp):
     def on_name_entered_in_add_entry_screen(self, c: str, *args):
         text_field = self.root.ids.entry_add_screen.ids.meal_name_input
         target = text_field.text + c
+        if self._drop_down:
+            self._drop_down.dismiss()
         self._drop_down = MDDropdownMenu(
             caller=text_field,
             width_mult=4)
@@ -127,6 +129,8 @@ class CaloriesApp(MDApp):
             self.root.ids.entry_add_screen.ids.meal_name_input.text = txt
             with MealDB() as db:
                 self.root.ids.entry_add_screen.ids.grams_input.text = str(db.get_meal_by_name(txt).portion)
+            if self._drop_down:
+                self._drop_down.dismiss()
 
         with MealDB() as mdb:
             names = sort_by_similarity(mdb.get_all_meal_names(), target)

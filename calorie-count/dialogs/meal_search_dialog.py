@@ -93,7 +93,7 @@ class MealSearchDialog(MDDialog):
         dialog.protein.text = str(food.protein)
         dialog.fats.text = str(food.fats)
         dialog.carbs.text = str(food.carbs)
-        dialog.salt.text = str(food.sodium)
+        dialog.salt.text = str(food.sodium )
         dialog.sugar.text = str(food.sugar)
         dialog.water.text = str(food.water)
         dialog.open()

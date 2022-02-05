@@ -34,12 +34,12 @@ def parse_foods_foundation(filename: str, heading: str) -> Generator[FoodData]:
         nut_dict = dict.fromkeys(('protein', 'fats', 'carbs', 'sodium', 'sugar', 'water'), .0)
         for nut in food['foodNutrients']:
             name = nut['nutrient']['name']
-            unit_name = nut['nutrient']['unitName']
             for s in nut_dict:
                 if s.rstrip('s') in name.lower():
                     nut_dict[s] = float(nut['amount'])
-                    if unit_name == 'mg':
-                        nut_dict[s] /= 1000
+                    # unit_name = nut['nutrient']['unitName']
+                    # if unit_name == 'mg':
+                    #     nut_dict[s] /= 1000
 
         portions = ','.join(f'{k}:{v}' for k, v in portions.items())
         yield FoodData(description=description, portions=portions, **nut_dict)
