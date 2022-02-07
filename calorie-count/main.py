@@ -88,7 +88,8 @@ class CaloriesApp(MDApp):
         table_layout = self.root.ids.meals_screen.ids.my_meals_layout
         table_layout.clear_widgets()
         self.meals_table = MDDataTable(column_data=[(col, dp(30)) for col in Meal.columns()],
-                                       row_data=[m.values for m in meals],
+                                       row_data=[[f'[font=Arial]{x}[/font]' for x in m.values]
+                                                 for m in meals],
                                        check=True,
                                        use_pagination=True
                                        )
@@ -136,7 +137,7 @@ class CaloriesApp(MDApp):
             names = sort_by_similarity(mdb.get_all_meal_names(), target)
             for name in names[:5]:
                 self._drop_down.items.append({'viewclass': 'OneLineListItem',
-                                              'text': name,
+                                              'text': f'[font=Arial]{name}[/font]',
                                               'on_release': lambda txt=name: callback(txt)
                                               })
 

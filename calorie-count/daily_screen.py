@@ -15,7 +15,7 @@ class ListEntry(TwoLineAvatarIconListItem):
         self.entry_id = entry.id
         self.delete_icon = IconRightWidget(icon='delete', on_release=self.on_del_icon_pressed)
         self.is_icon_hidden = True
-        super().__init__(**kwargs, on_press=lambda *a, **k: self.on_item_press(self.entry_id , *a, **k))
+        super().__init__(**kwargs, on_press=lambda *a, **k: self.on_item_press(self.entry_id, *a, **k))
 
     def on_item_press(self, entry_id: str, _item: TwoLineAvatarIconListItem, *a, **k):
         """Callback for when list item pressed (Note: mutable default on purpose)"""
@@ -39,8 +39,6 @@ class ListEntry(TwoLineAvatarIconListItem):
         toast(f'{self.text} Removed')
 
 
-
-
 def init_daily_screen(app, day: date = dt.now().date()):
     """Given the App (as reference), clears and re-loads the Daily screen.
      Loads the Entries based on the date given. Default date is today"""
@@ -60,8 +58,7 @@ def init_daily_screen(app, day: date = dt.now().date()):
     entry_list: MDList = app.root.ids.daily_entries_list
     entry_list.clear_widgets()
     for i, entry in enumerate(entries, 1):
+        text = entry.meal.name or f'Meal {i} (Unnamed)'
         entry_list.add_widget(ListEntry(entry_list, entry,
-                                        text=entry.meal.name or f'Meal {i} (Unnamed)',
+                                        text=f'[font=Arial]{text}[/font]',
                                         secondary_text=f'Calories: {entry.meal.cals: .2f}'))
-
-

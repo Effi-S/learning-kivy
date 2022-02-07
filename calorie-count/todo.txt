@@ -14,7 +14,7 @@ DONE Add sodium to trends
 DONE Add search for Meal
 DONE Fix dropdown error
 
-# Add Unicode to daily and list 
+DONE Add Unicode to daily and list 
 # Fix table with single value not showing 
 # Allow table to have more than 5 a page.
 DONE swap akivmd w/ matplotlib
