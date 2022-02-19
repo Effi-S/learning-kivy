@@ -1,11 +1,8 @@
 <TrendsScreen@MDBoxLayout>:
     orientation: 'vertical'
-    size_hint: .8, .8
-    spacing: dp(5)
     MDBoxLayout:
-        spacing: dp(5)
         size_hint: 1, .1
-        pos_hint: {'x': .1, 'y': .9}
+        spacing: dp(5)
         MDFillRoundFlatButton:
             id: trend_start_date_button
             text: "Start Date:"
@@ -21,8 +18,25 @@
             icon: 'chart-box'
             md_bg_color: app.theme_cls.primary_color
             on_release: app.generate_trend(*args)
+    MDBoxLayout:
+        size_hint: 1, .1
+        MDFillRoundFlatIconButton:
+            text: "today"
+            icon: 'calendar'
+            on_release: app.set_trends_date_range(days_back=0)
+        MDFillRoundFlatIconButton:
+            text: "week"
+            icon: 'calendar-range'
+            on_release: app.set_trends_date_range(days_back=7)
+        MDFillRoundFlatIconButton:
+            text: "month"
+            icon: 'calendar-month'
+            on_release: app.set_trends_date_range(days_back=30)
     ScrollView:
+        do_scroll_y: True
         MDBoxLayout:
+            spacing: dp(5)
+            size_hint_y: 1.5
             orientation: 'vertical'
             id: trends_layout
 

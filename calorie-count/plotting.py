@@ -29,12 +29,16 @@ def plot_pie_chart(data: dict[str, float]) -> FigureCanvasKivyAgg:
     fig, ax = plt.subplots(figsize=(24, 12))
 
     sum_ = sum(data.values())
-    data = {k: (v/sum_)*100 for k, v in data.items()}  # values to percents
+    if not sum_:
+        ax.pie([100], labels=['No Data'])
+    else:
+        data = {k: (v/sum_)*100 for k, v in data.items()}  # values to percents
 
-    _g = (f'{k}: {v: .1f}%' for k, v in data.items())
-    ax.pie(data.values(), autopct=lambda *a, **k: next(_g),
-           textprops={'color': 'w'})
-    ax.axis('normal')
+        _g = (f'{k}: {v: .1f}%' for k, v in data.items())
+        ax.pie(data.values(), autopct=lambda *a, **k: next(_g),
+               textprops={'color': 'w'})
+        ax.axis('normal')
+
     canvas = FigureCanvasKivyAgg(fig)
     plt.close()  # clearing memory of plt
     return canvas

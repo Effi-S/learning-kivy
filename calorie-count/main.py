@@ -38,6 +38,8 @@ CONFIG, THEME = 'DB/config.ini', 'THEME'
 class CaloriesApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.meal_search_dialog = None
         self.add_meal_dialog = None
         self.meals_table = None
         self._drop_down = None
@@ -49,10 +51,26 @@ class CaloriesApp(MDApp):
         self.theme_cls.accent_palette = parser.get(THEME, 'accent_palette', fallback="Teal")
         self.theme_cls.primary_palette = parser.get(THEME, 'primary_palette', fallback="BlueGray")
 
-        Clock.schedule_once(lambda x: self.on_my_meals_screen_pressed())  # loading table
+        Clock.schedule_once(lambda *_: self.on_my_meals_screen_pressed())  # loading table
+        Clock.schedule_once(lambda *_: self._switch_tab())  # setting default tab
+
+        # setting entry date to today
+        def _set_entry_date():
+            self.root.ids.entry_add_screen.ids.date_input.text = f'Date:\n{dt.now().date().isoformat()}'
+        Clock.schedule_once(lambda *_: _set_entry_date())
+
         from kivy.core.window import Window
         Window.size = (500, 700)
         return Builder.load_file("kv_files/main.kv")
+
+    def _switch_tab(self, name: str = 'add_entry'):
+        """Helper for switching the current tab."""
+        self.root.ids.bottom_navigation.switch_tab(name)
+
+    def on_choose_entry_date_pressed(self):
+        """Set a custom date for the entry"""
+        self.show_date_picker(button=self.root.ids.entry_add_screen.ids.date_input,
+                              is_limited=False)
 
     def on_daily_screen_pressed(self, *args):
         """Init Daily screen"""
@@ -147,6 +165,7 @@ class CaloriesApp(MDApp):
     def on_submit_meal_entry(self, *args):
         name = self.root.ids.entry_add_screen.ids.meal_name_input.text
         portion = self.root.ids.entry_add_screen.ids.grams_input.text
+        entry_date = self.root.ids.entry_add_screen.ids.date_input.text.splitlines()[-1]
         with MealDB() as mdb:
             names = mdb.get_all_meal_names()
         if name not in names:
@@ -164,7 +183,7 @@ class CaloriesApp(MDApp):
             dialog.bind(on_dismiss=add_nameless_submission)
         else:
             with MealEntriesDB() as me_db:
-                me = MealEntry(name=name, portion=float(portion or 0))
+                me = MealEntry(name=name, portion=float(portion or 0), date=entry_date)
                 me_db.add_meal_entry(me)
                 toast(f'Added Meal entry!\n({me}')
 
@@ -194,19 +213,34 @@ class CaloriesApp(MDApp):
         dialog.open()
 
     @staticmethod
-    def show_date_picker(button, *args, **kwargs):
-        def got_date(_, date, *a, **k):
-            button.text = button.text.splitlines()[0] + '\n' + date.isoformat()
+    def show_date_picker(button, is_limited: bool = True, *args, **kwargs):
+        """Helper function for binding a button with a date it displays.
+        Preferably the text of the button should be set to "Date:" in .kv file. """
 
-        with MealEntriesDB() as me_db:
-            first, last = me_db.get_first_last_dates()
+        def got_date(_, _date, *a, **k):
+            button.text = button.text.splitlines()[0] + '\n' + _date.isoformat()
+        if is_limited:
+            with MealEntriesDB() as me_db:
+                first, last = me_db.get_first_last_dates()
+            if first == last:
+                first -= timedelta(days=1)
+            picker = MDDatePicker(min_date=first, max_date=last)
+        else:
+            picker = MDDatePicker()
 
-        picker = MDDatePicker(min_date=first, max_date=last)
         picker.bind(on_save=got_date)
         picker.open()
 
-    def generate_trend(self, *args, **kwargs):
+    def set_trends_date_range(self, days_back: int):
+        """Callback for binding event to setting trends date range."""
+        end_date = dt.now().date()
+        start_date = end_date - timedelta(days=days_back)
+        start_button = self.root.ids.trends_screen.ids.trend_start_date_button
+        end_button = self.root.ids.trends_screen.ids.trend_end_date_button
+        start_button.text = "\n".join((start_button.text.splitlines()[0], start_date.isoformat()))
+        end_button.text = "\n".join((end_button.text.splitlines()[0], end_date.isoformat()))
 
+    def generate_trend(self, *args, **kwargs):
         # -- Getting The relevant entries
         start_date = self.root.ids.trends_screen.ids.trend_start_date_button.text.splitlines()[-1]
         end_date = self.root.ids.trends_screen.ids.trend_end_date_button.text.splitlines()[-1]
@@ -242,8 +276,9 @@ class CaloriesApp(MDApp):
 
     def on_search_meal_pressed(self, *args, **kwargs):
         """ Search for a meal button pressed. """
-        dialog = MealSearchDialog(self)
-        dialog.open()
+        if not self.meal_search_dialog:
+            self.meal_search_dialog = MealSearchDialog(self)
+        self.meal_search_dialog.open()
 
     def show_theme_picker(self, *args, **kwargs):
 

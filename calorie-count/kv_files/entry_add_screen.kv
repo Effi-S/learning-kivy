@@ -25,6 +25,12 @@
 	    	size_hint_x: 0.8
 	    	pos_hint: {"center_x": 0.5}
 	    	icon_right: "scale"
+	    MDRaisedButton:
+	        id: date_input
+            text: "Date: "
+            pos_hint: {'center_x': .5}
+            on_release: app.on_choose_entry_date_pressed()
+
 
         MDFillRoundFlatIconButton:
         	id: add_meal_button

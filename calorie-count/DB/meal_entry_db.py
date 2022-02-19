@@ -2,9 +2,8 @@
 Parameters to and from this DB are passed with instances of the  dataclass "MealEntry". """
 from __future__ import annotations
 import sqlite3
-from dataclasses import dataclass, field, InitVar, asdict
+from dataclasses import dataclass, field
 from datetime import datetime as dt, timedelta
-from typing import Iterable
 import atexit
 from DB.meal_db import Meal, MealDB
 

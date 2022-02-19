@@ -27,11 +27,12 @@ class MealAddDialog(MDDialog):
     """A dialog/pop-up asking the user to add a new Meal."""
     last_submission: Meal = None  # Here we can store the last Meal submission
 
-    def __init__(self, app, allow_nameless: bool = False, **kwargs):
+    def __init__(self, app, back_dialog=None, allow_nameless: bool = False, **kwargs):
 
         self.allow_nameless = allow_nameless
-        # dialog buttons
         self.root_window = app.root_window
+
+        # dialog buttons
         self.submit_button = MDFillRoundFlatIconButton(text="Submit Meal", icon="basket-plus",
                                                        on_press=self.on_submit_meal_button_pressed)
         self.clear_button = MDFillRoundFlatIconButton(text="Clear selection", icon="undo",

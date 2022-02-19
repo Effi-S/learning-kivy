@@ -10,21 +10,22 @@ Done Make theme picker save data to db
 DONE Allow remove meal entry
 DONE Add swiping days fwd/bkwd
 DONE Add sodium to trends
-
 DONE Add search for Meal
 DONE Fix dropdown error
-
-DONE Add Unicode to daily and list 
-# Fix table with single value not showing 
-# Allow table to have more than 5 a page.
+DONE Add Unicode to daily and list
+DONE Allow table to have more than 5 a page.
 DONE swap akivmd w/ matplotlib
+DONE Add option to add meal entry to different date.
 
-# Allow nameless meals? 
-# Fix Add new meal dialog text fields overlapping?
-# Add back to dialogs
+# Make Search show more data (instead of ...)
+# Allow different quantities when adding meal from search (not just 100g)
+# More robust processing of search result's description
 
 Nice To Have
 ----
+DONE Fix Add new meal dialog text fields overlapping
+# Add back to dialogs
+# Allow nameless meals?
 # When only 1 meal entered to meals datatable is weird
 # Set a daily goal
 # Optional: Add minimal calorie out tracking
