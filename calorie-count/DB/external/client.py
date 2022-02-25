@@ -65,7 +65,7 @@ class ExternalFoodsDB:
         self.cursor.execute(cmd, asdict(food))
         self.conn.commit()
 
-    def get_similar_food_by_name(self, name: str, max_results: int = 5) -> Generator[FoodData]:
+    def get_similar_food_by_name(self, name: str, max_results: int = 15) -> Generator[FoodData]:
         """Given a name of a food return the most similar food in the DB.
         Ordered most similar to least similar.
         By default maximum of 5 values in the list, override 'max_results' to change this.

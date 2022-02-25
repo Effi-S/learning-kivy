@@ -16,17 +16,25 @@ DONE Add Unicode to daily and list
 DONE Allow table to have more than 5 a page.
 DONE swap akivmd w/ matplotlib
 DONE Add option to add meal entry to different date.
+DONE make search_meals a screen not a dialog
+DONE Fit trends screen to window (bottom is being cut by default for some reason)
+DONE Make Search show more data (instead of ...)
 
-# Make Search show more data (instead of ...)
+# Remove the add meal screen
+    - instead add a "+" action button to daily screen
+# When meal-not-exists add option to search for the meal
+
 # Allow different quantities when adding meal from search (not just 100g)
-# More robust processing of search result's description
 
 Nice To Have
 ----
 DONE Fix Add new meal dialog text fields overlapping
-# Add back to dialogs
+DONE Add back to dialogs
+
+# More robust processing of search result's description - NLP
 # Allow nameless meals?
-# When only 1 meal entered to meals datatable is weird
-# Set a daily goal
+# When only 1 meal entered to meals data-table is weird
+# Set a daily goal (sodium + calories)
 # Optional: Add minimal calorie out tracking
 # Add zoom in-out to plot
+# Capture image off of labels of food.

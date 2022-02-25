@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import configparser
 import os
-import re
 
-from daily_screen import init_daily_screen
-from dialogs.meal_search_dialog import MealSearchDialog
+from kivy.uix.screenmanager import ScreenManager
+
+from dialogs.meal_search import MealSearchScreen
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
 
+import re
+from daily_screen import init_daily_screen
 from plotting import plot_pie_chart, plot_graph
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
@@ -38,8 +40,6 @@ CONFIG, THEME = 'DB/config.ini', 'THEME'
 class CaloriesApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        self.meal_search_dialog = None
         self.add_meal_dialog = None
         self.meals_table = None
         self._drop_down = None
@@ -50,9 +50,7 @@ class CaloriesApp(MDApp):
         self.theme_cls.theme_style = parser.get(THEME, 'theme_style', fallback="Dark")
         self.theme_cls.accent_palette = parser.get(THEME, 'accent_palette', fallback="Teal")
         self.theme_cls.primary_palette = parser.get(THEME, 'primary_palette', fallback="BlueGray")
-
-        Clock.schedule_once(lambda *_: self.on_my_meals_screen_pressed())  # loading table
-        Clock.schedule_once(lambda *_: self._switch_tab())  # setting default tab
+        Clock.schedule_once(self._post_build_)
 
         # setting entry date to today
         def _set_entry_date():
@@ -62,6 +60,12 @@ class CaloriesApp(MDApp):
         from kivy.core.window import Window
         Window.size = (500, 700)
         return Builder.load_file("kv_files/main.kv")
+
+    def _post_build_(self, *a, **k):
+        self.on_my_meals_screen_pressed()  # loading table
+        self._switch_tab()  # setting default tab
+        self.root.add_widget(MealSearchScreen(self))
+
 
     def _switch_tab(self, name: str = 'add_entry'):
         """Helper for switching the current tab."""
@@ -189,6 +193,7 @@ class CaloriesApp(MDApp):
 
     def on_delete_meals_pressed(self, *args):
         names = [x[0] for x in self.meals_table.get_row_checks()]
+        names = [x.strip('[font=Arial]').strip('[/font]') for x in names]
 
         def remove(*a, **k):
             with MealDB() as mdb:
@@ -276,9 +281,8 @@ class CaloriesApp(MDApp):
 
     def on_search_meal_pressed(self, *args, **kwargs):
         """ Search for a meal button pressed. """
-        if not self.meal_search_dialog:
-            self.meal_search_dialog = MealSearchDialog(self)
-        self.meal_search_dialog.open()
+        self.root.transition.direction = 'left'
+        self.root.current = 'meal_search_screen'
 
     def show_theme_picker(self, *args, **kwargs):
 
