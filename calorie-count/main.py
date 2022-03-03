@@ -3,18 +3,18 @@ from __future__ import annotations
 import configparser
 import os
 
+os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
+
 from kivy.uix.screenmanager import ScreenManager
 
 from dialogs.meal_search import MealSearchScreen
-
-os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
 
 import re
 from daily_screen import init_daily_screen
 from plotting import plot_pie_chart, plot_graph
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDFlatButton, MDFillRoundFlatIconButton
 from kivymd.uix.menu import MDDropdownMenu
 
 from kivy.clock import Clock
@@ -55,6 +55,7 @@ class CaloriesApp(MDApp):
         # setting entry date to today
         def _set_entry_date():
             self.root.ids.entry_add_screen.ids.date_input.text = f'Date:\n{dt.now().date().isoformat()}'
+
         Clock.schedule_once(lambda *_: _set_entry_date())
 
         from kivy.core.window import Window
@@ -64,8 +65,8 @@ class CaloriesApp(MDApp):
     def _post_build_(self, *a, **k):
         self.on_my_meals_screen_pressed()  # loading table
         self._switch_tab()  # setting default tab
-        self.root.add_widget(MealSearchScreen(self))
-
+        self.meal_search_screen = MealSearchScreen(self)
+        self.root.add_widget(self.meal_search_screen)
 
     def _switch_tab(self, name: str = 'add_entry'):
         """Helper for switching the current tab."""
@@ -170,21 +171,31 @@ class CaloriesApp(MDApp):
         name = self.root.ids.entry_add_screen.ids.meal_name_input.text
         portion = self.root.ids.entry_add_screen.ids.grams_input.text
         entry_date = self.root.ids.entry_add_screen.ids.date_input.text.splitlines()[-1]
+        dialog = None
         with MealDB() as mdb:
             names = mdb.get_all_meal_names()
         if name not in names:
-            # Get meal from dialog
-            def add_nameless_submission(*a, **k) -> None:
-                if not dialog.check_errors():
-                    with MealEntriesDB() as entries:
-                        entry = MealEntry(meal=dialog.last_submission)
-                        entries.add_meal_entry(entry)
-                        toast(f'Added Meal entry!\n({entry}')
+            def open_plus_dialog(*_):
+                print(_)
+                dialog.dismiss()
+                d = MealAddDialog(self)
+                d.meal_name.text, d.title = name, f'"{name}" not in Meals, Please add it below:'
+                d.open()
 
-            dialog = MealAddDialog(self)
-            dialog.meal_name.text, dialog.title = name, f'"{name}" not in Meals, Please add it below:'
+            def start_search(*_):
+                print(_)
+                dialog.dismiss()
+                self.on_search_meal_pressed(name)
+
+            dialog = MDDialog(title=f'"{name}" not in Meals',
+                              text='Try One of the options below:',
+                              buttons=[
+                                  MDFillRoundFlatIconButton(text="Search", icon='magnify',
+                                                            on_press=start_search),
+                                  MDFillRoundFlatIconButton(text="Add new", icon='plus',
+                                                            on_press=open_plus_dialog)
+                              ])
             dialog.open()
-            dialog.bind(on_dismiss=add_nameless_submission)
         else:
             with MealEntriesDB() as me_db:
                 me = MealEntry(name=name, portion=float(portion or 0), date=entry_date)
@@ -224,6 +235,7 @@ class CaloriesApp(MDApp):
 
         def got_date(_, _date, *a, **k):
             button.text = button.text.splitlines()[0] + '\n' + _date.isoformat()
+
         if is_limited:
             with MealEntriesDB() as me_db:
                 first, last = me_db.get_first_last_dates()
@@ -279,10 +291,12 @@ class CaloriesApp(MDApp):
         pie_chart = plot_pie_chart(data)
         trends_layout.add_widget(pie_chart)
 
-    def on_search_meal_pressed(self, *args, **kwargs):
+    def on_search_meal_pressed(self, query: str = '', *args, **kwargs):
         """ Search for a meal button pressed. """
         self.root.transition.direction = 'left'
         self.root.current = 'meal_search_screen'
+        if query:
+            self.meal_search_screen.search_input_field.text = query
 
     def show_theme_picker(self, *args, **kwargs):
 
