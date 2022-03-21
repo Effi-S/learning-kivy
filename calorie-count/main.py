@@ -5,8 +5,6 @@ import os
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
 
-from kivy.uix.screenmanager import ScreenManager
-
 from dialogs.meal_search import MealSearchScreen
 
 import re
@@ -66,7 +64,7 @@ class CaloriesApp(MDApp):
         self.on_my_meals_screen_pressed()  # loading table
         self._switch_tab()  # setting default tab
         self.meal_search_screen = MealSearchScreen(self)
-        self.root.add_widget(self.meal_search_screen)
+        self.root.ids.screen_manager.add_widget(self.meal_search_screen)
 
     def _switch_tab(self, name: str = 'add_entry'):
         """Helper for switching the current tab."""
@@ -183,9 +181,8 @@ class CaloriesApp(MDApp):
                 d.open()
 
             def start_search(*_):
-                print(_)
                 dialog.dismiss()
-                self.on_search_meal_pressed(name)
+                self.on_search_meal_pressed(query=name)
 
             dialog = MDDialog(title=f'"{name}" not in Meals',
                               text='Try One of the options below:',
@@ -291,10 +288,10 @@ class CaloriesApp(MDApp):
         pie_chart = plot_pie_chart(data)
         trends_layout.add_widget(pie_chart)
 
-    def on_search_meal_pressed(self, query: str = '', *args, **kwargs):
+    def on_search_meal_pressed(self, *_, query: str = '', **kwargs):
         """ Search for a meal button pressed. """
-        self.root.transition.direction = 'left'
-        self.root.current = 'meal_search_screen'
+        self.root.ids.screen_manager.transition.direction = 'left'
+        self.root.ids.screen_manager.current = 'meal_search_screen'
         if query:
             self.meal_search_screen.search_input_field.text = query
 

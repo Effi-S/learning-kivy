@@ -22,8 +22,8 @@ KV = '''
             text: "Back"
             icon: 'chevron-left'
             on_press: 
-                app.root.transition.direction = 'right'
-                app.root.current = "default"
+                app.root.ids.screen_manager.transition.direction = 'right'
+                app.root.ids.screen_manager.current = "default"
                 
         MDBoxLayout:
             id: search_bar_layout

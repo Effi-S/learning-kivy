@@ -1,0 +1,51 @@
+<ContentNavigationDrawer@MDBoxLayout>:
+    orientation: "vertical"
+    padding: "8dp"
+    spacing: "8dp"
+
+    AnchorLayout:
+        anchor_x: "left"
+        size_hint_y: None
+        height: avatar.height
+
+        Image:
+            id: avatar
+            size_hint: None, None
+            size: "56dp", "56dp"
+            source: "cc.jpg"
+
+    MDLabel:
+        text: "Calorie Counter"
+        font_style: "Button"
+        adaptive_height: True
+
+    MDLabel:
+        text: "By: Efrayim Sztokman"
+        font_style: "Caption"
+        adaptive_height: True
+
+    ScrollView:
+        MDList:
+            OneLineIconListItem:
+                text: "Capture Label"
+                on_release: print("hello")
+                IconLeftWidget:
+                    icon: "scan-helper"
+            OneLineIconListItem:
+                text: "User"
+                IconLeftWidget:
+                    icon: "account"
+            OneLineIconListItem:
+                text: "Meal Plan"
+                IconLeftWidget:
+                    icon: "calendar-month"
+            OneLineIconListItem:
+                text: "Daily Goals"
+                IconLeftWidget:
+                    icon: "checkbox-marked"
+
+            OneLineIconListItem:
+                text: "Starred"
+                IconLeftWidget:
+                    icon: "star"
+

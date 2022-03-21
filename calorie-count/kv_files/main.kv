@@ -1,73 +1,77 @@
 #: include ./kv_files/entry_add_screen.kv
 #: include ./kv_files/meals_screen.kv
 #: include ./kv_files/trends_screen.kv
+#: include ./kv_files/nav_drawer.kv
 
-<MainKV@ScreenManager>:
-    orientation: 'vertical'
-MainKV:
-    Screen:
-        name: "default"
-        MDBoxLayout:
-            orientation: "vertical"
-            MDToolbar:
-            	title: "Calorie Counter"
-            	#md_bg_color: .2, .2, .2, 1
-            	#specific_text_color: 1, 1, 1, 1
-            	left_action_items:[['menu']]
-            	right_action_items: [['dots-vertical'], ['cog', app.show_theme_picker]]
+Screen:
+    MDNavigationLayout:
+        ScreenManager:
+            orientation: 'vertical'
+            id: screen_manager
+            Screen:
+                name: "default"
+                MDBoxLayout:
+                    orientation: "vertical"
+                    MDToolbar:
+            	        title: "Calorie Counter"
+            	        left_action_items:[['menu', lambda x: nav_drawer.set_state("open")]]
+            	        right_action_items: [['dots-vertical'], ['cog', app.show_theme_picker]]
 
-            MDBottomNavigation:
-                id: bottom_navigation
-                MDBottomNavigationItem:
-                    name: 'my_meals'
-                    text: "My Meals"
-                    icon: 'basket'
-                    on_enter: app.on_my_meals_screen_pressed(*args)
-                    MealsScreen:
-                        id: meals_screen
+                    MDBottomNavigation:
+                        id: bottom_navigation
+                        MDBottomNavigationItem:
+                            name: 'my_meals'
+                            text: "My Meals"
+                            icon: 'basket'
+                            on_enter: app.on_my_meals_screen_pressed(*args)
+                            MealsScreen:
+                                id: meals_screen
 
-                MDBottomNavigationItem:
-                    name: 'add_entry'
-                    text: "Add Entry"
-                    icon: 'calendar-plus'
-                    EntryAddScreen:
-                        id: entry_add_screen
+                        MDBottomNavigationItem:
+                            name: 'add_entry'
+                            text: "Add Entry"
+                            icon: 'calendar-plus'
+                            EntryAddScreen:
+                                id: entry_add_screen
 
-                MDBottomNavigationItem:
-                    name: 'daily_screen'
-                    text: "Today"
-                    icon: 'view-day-outline'
-                    on_tab_press: app.on_daily_screen_pressed(*args)
-                    ScrollView:
-                        do_scroll_x: True
-                        do_scroll_y: False
-                        MDBoxLayout:
-                            orientation: 'vertical'
-                            MDBoxLayout:
-                                MDIconButton:
-                                    icon: 'chevron-left'
-                                    on_press: app.on_prev_daily_pressed(*args)
-                                MDLabel:
-                                    id: total_cals_header_label
-                                    text: "Total Calories today:"
-                                    halign: 'center'
-                                MDLabel:
-                                    id: total_cals_label
-                                    text: "0"
-                                    halign: 'center'
-                                MDIconButton:
-                                    icon: 'chevron-right'
-                                    on_press: app.on_next_daily_pressed(*args)
+                        MDBottomNavigationItem:
+                            name: 'daily_screen'
+                            text: "Today"
+                            icon: 'view-day-outline'
+                            on_tab_press: app.on_daily_screen_pressed(*args)
                             ScrollView:
-                                MDList:
-                                    id: daily_entries_list
+                                do_scroll_x: True
+                                do_scroll_y: False
+                                MDBoxLayout:
+                                    orientation: 'vertical'
+                                    MDBoxLayout:
+                                        MDIconButton:
+                                            icon: 'chevron-left'
+                                            on_press: app.on_prev_daily_pressed(*args)
+                                        MDLabel:
+                                            id: total_cals_header_label
+                                            text: "Total Calories today:"
+                                            halign: 'center'
+                                        MDLabel:
+                                            id: total_cals_label
+                                            text: "0"
+                                            halign: 'center'
+                                        MDIconButton:
+                                            icon: 'chevron-right'
+                                            on_press: app.on_next_daily_pressed(*args)
+                                    ScrollView:
+                                        MDList:
+                                            id: daily_entries_list
 
-                MDBottomNavigationItem:
-                    name: 'trends_screen'
-                    text: "Trends"
-                    icon: 'chart-bell-curve-cumulative'
-                    on_enter: app.on_trends_pressed(*args)
-                    TrendsScreen:
-                        id: trends_screen
-                        text: "View your trends here"
-                        halign: 'center'
+                        MDBottomNavigationItem:
+                            name: 'trends_screen'
+                            text: "Trends"
+                            icon: 'chart-bell-curve-cumulative'
+                            on_enter: app.on_trends_pressed(*args)
+                            TrendsScreen:
+                                id: trends_screen
+                                text: "View your trends here"
+                                halign: 'center'
+        MDNavigationDrawer:
+            id: nav_drawer
+            ContentNavigationDrawer:

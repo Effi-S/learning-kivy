@@ -19,11 +19,10 @@ DONE Add option to add meal entry to different date.
 DONE make search_meals a screen not a dialog
 DONE Fit trends screen to window (bottom is being cut by default for some reason)
 DONE Make Search show more data (instead of ...)
+DONE When meal-not-exists add option to search for the meal
 
-# Remove the add meal screen
-    - instead add a "+" action button to daily screen
-# When meal-not-exists add option to search for the meal
-
+# Add meal plan. Daily/Weekly/Monthly
+# Add a "+" action button to daily screen
 # Allow different quantities when adding meal from search (not just 100g)
 
 Nice To Have
@@ -31,10 +30,11 @@ Nice To Have
 DONE Fix Add new meal dialog text fields overlapping
 DONE Add back to dialogs
 
-# More robust processing of search result's description - NLP
-# Allow nameless meals?
-# When only 1 meal entered to meals data-table is weird
+# Capture image off of labels of food.
 # Set a daily goal (sodium + calories)
+# More robust processing of search result's description - NLP
+# Allow multiple users.
+
+# When only 1 meal entered to meals data-table is weird
 # Optional: Add minimal calorie out tracking
 # Add zoom in-out to plot
-# Capture image off of labels of food.
