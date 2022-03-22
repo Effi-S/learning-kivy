@@ -1,6 +1,7 @@
 #: include ./kv_files/entry_add_screen.kv
 #: include ./kv_files/meals_screen.kv
 #: include ./kv_files/trends_screen.kv
+#: include ./kv_files/daily_screen.kv
 #: include ./kv_files/nav_drawer.kv
 
 Screen:
@@ -15,7 +16,7 @@ Screen:
                     MDToolbar:
             	        title: "Calorie Counter"
             	        left_action_items:[['menu', lambda x: nav_drawer.set_state("open")]]
-            	        right_action_items: [['dots-vertical'], ['cog', app.show_theme_picker]]
+            	        right_action_items: [['share-variant', app.export_data], ['invert-colors', app.show_theme_picker]]
 
                     MDBottomNavigation:
                         id: bottom_navigation
@@ -39,29 +40,9 @@ Screen:
                             text: "Today"
                             icon: 'view-day-outline'
                             on_tab_press: app.on_daily_screen_pressed(*args)
-                            ScrollView:
-                                do_scroll_x: True
-                                do_scroll_y: False
-                                MDBoxLayout:
-                                    orientation: 'vertical'
-                                    MDBoxLayout:
-                                        MDIconButton:
-                                            icon: 'chevron-left'
-                                            on_press: app.on_prev_daily_pressed(*args)
-                                        MDLabel:
-                                            id: total_cals_header_label
-                                            text: "Total Calories today:"
-                                            halign: 'center'
-                                        MDLabel:
-                                            id: total_cals_label
-                                            text: "0"
-                                            halign: 'center'
-                                        MDIconButton:
-                                            icon: 'chevron-right'
-                                            on_press: app.on_next_daily_pressed(*args)
-                                    ScrollView:
-                                        MDList:
-                                            id: daily_entries_list
+                            DailyScreen:
+                                id: daily_screen
+
 
                         MDBottomNavigationItem:
                             name: 'trends_screen'

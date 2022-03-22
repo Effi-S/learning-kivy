@@ -1,0 +1,23 @@
+<DailyScreen>:
+    do_scroll_x: True
+    do_scroll_y: False
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDBoxLayout:
+            MDIconButton:
+                icon: 'chevron-left'
+                on_press: root.on_prev_daily_pressed(*args)
+            MDLabel:
+                id: total_cals_header_label
+                text: "Total Calories today:"
+                halign: 'center'
+            MDLabel:
+                id: total_cals_label
+                text: "0"
+                halign: 'center'
+            MDIconButton:
+                icon: 'chevron-right'
+                on_press: root.on_next_daily_pressed(*args)
+        ScrollView:
+            MDList:
+                id: daily_entries_list

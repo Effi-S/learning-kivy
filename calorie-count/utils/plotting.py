@@ -11,7 +11,7 @@ Building Notes:
 """
 
 from __future__ import annotations
-from kmplot.backend_kivyagg import FigureCanvasKivyAgg
+from lib.kmplot.backend_kivyagg import FigureCanvasKivyAgg
 import matplotlib.pyplot as plt
 
 _RC_PARAMS = {  # params for plotting

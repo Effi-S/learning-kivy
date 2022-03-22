@@ -5,11 +5,9 @@ import os
 
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
 
-from dialogs.meal_search import MealSearchScreen
-
-import re
-from daily_screen import init_daily_screen
-from plotting import plot_pie_chart, plot_graph
+from screens.daily_screen import DailyScreen
+from screens.meal_search import MealSearchScreen
+from utils.plotting import plot_pie_chart, plot_graph
 from kivymd.uix.picker import MDDatePicker, MDThemePicker
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDFillRoundFlatIconButton
@@ -28,8 +26,8 @@ from DB.meal_entry_db import MealEntriesDB, MealEntry
 from datetime import datetime as dt
 from datetime import timedelta, date
 
-from utils import sort_by_similarity
-from dialogs.meal_add_dialog import MealAddDialog
+from utils.utils import sort_by_similarity
+from screens.meal_add_dialog import MealAddDialog
 from DB.meal_db import Meal, MealDB
 
 CONFIG, THEME = 'DB/config.ini', 'THEME'
@@ -43,18 +41,14 @@ class CaloriesApp(MDApp):
         self._drop_down = None
 
     def build(self):
+        # Configuring theme data
         parser = configparser.ConfigParser()
         parser.read(CONFIG)
         self.theme_cls.theme_style = parser.get(THEME, 'theme_style', fallback="Dark")
         self.theme_cls.accent_palette = parser.get(THEME, 'accent_palette', fallback="Teal")
         self.theme_cls.primary_palette = parser.get(THEME, 'primary_palette', fallback="BlueGray")
+
         Clock.schedule_once(self._post_build_)
-
-        # setting entry date to today
-        def _set_entry_date():
-            self.root.ids.entry_add_screen.ids.date_input.text = f'Date:\n{dt.now().date().isoformat()}'
-
-        Clock.schedule_once(lambda *_: _set_entry_date())
 
         from kivy.core.window import Window
         Window.size = (500, 700)
@@ -65,6 +59,9 @@ class CaloriesApp(MDApp):
         self._switch_tab()  # setting default tab
         self.meal_search_screen = MealSearchScreen(self)
         self.root.ids.screen_manager.add_widget(self.meal_search_screen)
+
+        # setting entry date to today
+        self.root.ids.entry_add_screen.ids.date_input.text = f'Date:\n{dt.now().date().isoformat()}'
 
     def _switch_tab(self, name: str = 'add_entry'):
         """Helper for switching the current tab."""
@@ -77,30 +74,8 @@ class CaloriesApp(MDApp):
 
     def on_daily_screen_pressed(self, *args):
         """Init Daily screen"""
-        init_daily_screen(self)
-
-    def _find_day_in_daily_screen(self) -> date:
-        """Get a date object parsed from the label displayed in Daily screen"""
-        text = self.root.ids.total_cals_header_label.text
-        if 'today' in text.lower():
-            return dt.now().date()
-        elif 'yesterday' in text.lower():
-            return (dt.now() - timedelta(days=1)).date()
-        for day in re.findall(r'\d+-\d+-\d+', text):
-            return dt.fromisoformat(day).date()
-        toast('Error Getting day')
-
-    def on_prev_daily_pressed(self, *args):
-        """Previous day in Daily tab"""
-        day = self._find_day_in_daily_screen() - timedelta(days=1)
-        init_daily_screen(self, day)
-
-    def on_next_daily_pressed(self, *args):
-        """Next day in Daily tab"""
-        day = self._find_day_in_daily_screen() + timedelta(days=1)
-        if day > dt.now().date():
-            return
-        init_daily_screen(self, day)
+        daily_screen: DailyScreen = self.root.ids.daily_screen
+        daily_screen.update()
 
     def on_my_meals_screen_pressed(self, *args):
         with MealDB() as mdb:
@@ -310,6 +285,9 @@ class CaloriesApp(MDApp):
         theme_dialog = MDThemePicker()
         theme_dialog.bind(on_dismiss=_set_theme)
         theme_dialog.open()
+
+    def export_data(self, *args, **kwargs):
+        toast('Not Implemented yet')
 
 
 if __name__ == '__main__':

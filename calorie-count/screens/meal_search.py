@@ -9,10 +9,10 @@ from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.list import ThreeLineAvatarListItem, IconLeftWidget
 
 from DB.external.client import ExternalFoodsDB, FoodData
-from dialogs.meal_add_dialog import MealAddDialog
-from utils import RTLMDTextField
+from screens.meal_add_dialog import MealAddDialog
+from utils.utils import RTLMDTextField
 
-KV = '''
+KV = '''  
 <MealSearchScreen>:
     name: 'meal_search_screen'
     MDBoxLayout:
