@@ -8,5 +8,5 @@
 - Android
 - For setting up deploy enviroment see _deploy_tips.txt
 # Proejcts:
-- calorie-count - first app attempt - simple calorie counting application
+- **calorie-count** - first app attempt - simple calorie counting application
 
