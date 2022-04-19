@@ -1,3 +1,6 @@
+# Setting up deployment enviromentfor android
+# Note: if you wish to simply run a project: "python3 main.py"
+
 Step 1) Set up a new virtual machine allocated 2048 MB of memory and 20 GB of disk space.
 	- Download an Ubuntu 18.04 image https://ubuntu.com/download/desktop
 	- Install Ubuntu on the virtual machine
