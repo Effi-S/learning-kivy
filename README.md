@@ -6,6 +6,6 @@
     Remove "os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'"
     from "main.py" (top of page)
 - Deploying to Android - For setting up deploy enviroment see _deploy_tips.txt
-# Proejcts:
+# Projects:
 - **calorie-count** - first app attempt - simple calorie counting application
 
