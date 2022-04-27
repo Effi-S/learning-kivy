@@ -21,10 +21,13 @@ DONE Fit trends screen to window (bottom is being cut by default for some reason
 DONE Make Search show more data (instead of ...)
 DONE When meal-not-exists add option to search for the meal
 
+# Bug - Sort order ruined if day left empty.
+# Upgrade external database.
+# Bug - Some names are messed up in the search.
 # Add meal plan. Daily/Weekly/Monthly
 # Add a "+" action button to daily screen
 # Allow different quantities when adding meal from search (not just 100g)
-
+# raplace "Water" with "calories"? 
 Nice To Have
 ----
 DONE Fix Add new meal dialog text fields overlapping
