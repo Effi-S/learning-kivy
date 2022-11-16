@@ -1,4 +1,4 @@
-'''
+"""
 Backend Kivy
 =====
 
@@ -234,7 +234,7 @@ is released, `motion_notify_event` which is raised when the mouse is on motion,
     fig.canvas.mpl_connect('figure_leave_event', figure_leave)
     fig.canvas.mpl_connect('close_event', close)
 
-'''
+"""
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -242,7 +242,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 import os
 import matplotlib
-import matplotlib.transforms as transforms
+# import matplotlib.transforms as transforms
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, TimerBase
@@ -252,8 +252,8 @@ from matplotlib.backend_bases import ShowBase, Event
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.mathtext import MathTextParser
 from matplotlib import rcParams
-from hashlib import md5
-from matplotlib import _png
+# from hashlib import md5
+# from matplotlib import _png
 from matplotlib import _path
 
 try:

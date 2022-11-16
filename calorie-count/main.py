@@ -3,12 +3,15 @@ from __future__ import annotations
 import configparser
 import os
 
-os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # Remove when not on windows (debug w/ GPU)
+try:
+    import kivy
+except (Exception,):
+    os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # (debug w/ Windows + GPU)
 
 from screens.daily_screen import DailyScreen
-from screens.meal_search import MealSearchScreen
+from screens.food_search import FoodSearchScreen
 from utils.plotting import plot_pie_chart, plot_graph
-from kivymd.uix.picker import MDDatePicker, MDThemePicker
+from kivymd.uix.pickers import MDDatePicker, MDColorPicker
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDFillRoundFlatIconButton
 from kivymd.uix.menu import MDDropdownMenu
@@ -24,20 +27,21 @@ from kivymd.app import MDApp
 from DB.meal_entry_db import MealEntriesDB, MealEntry
 
 from datetime import datetime as dt
-from datetime import timedelta, date
+from datetime import timedelta
 
 from utils.utils import sort_by_similarity
-from screens.meal_add_dialog import MealAddDialog
-from DB.meal_db import Meal, MealDB
+from screens.food_add_dialog import FoodAddDialog
+from DB.food_db import Food, FoodDB
 
 CONFIG, THEME = 'DB/config.ini', 'THEME'
+MAIN_KV = "kv_files/main.kv"
 
 
 class CaloriesApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.add_meal_dialog = None
-        self.meals_table = None
+        self.add_food_dialog = None
+        self.food_table = None
         self._drop_down = None
 
     def build(self):
@@ -52,13 +56,13 @@ class CaloriesApp(MDApp):
 
         from kivy.core.window import Window
         Window.size = (500, 700)
-        return Builder.load_file("kv_files/main.kv")
+        return Builder.load_file(MAIN_KV)
 
     def _post_build_(self, *a, **k):
-        self.on_my_meals_screen_pressed()  # loading table
+        self.on_my_foods_screen_pressed()  # loading table
         self._switch_tab()  # setting default tab
-        self.meal_search_screen = MealSearchScreen(self)
-        self.root.ids.screen_manager.add_widget(self.meal_search_screen)
+        self.food_search_screen = FoodSearchScreen(self)
+        self.root.ids.screen_manager.add_widget(self.food_search_screen)
 
         # setting entry date to today
         self.root.ids.entry_add_screen.ids.date_input.text = f'Date:\n{dt.now().date().isoformat()}'
@@ -77,28 +81,28 @@ class CaloriesApp(MDApp):
         daily_screen: DailyScreen = self.root.ids.daily_screen
         daily_screen.update()
 
-    def on_my_meals_screen_pressed(self, *args):
-        with MealDB() as mdb:
-            meals = mdb.get_all_meals()
+    def on_my_foods_screen_pressed(self, *args):
+        with FoodDB() as fdb:
+            foods = fdb.get_all_foods()
 
-        table_layout = self.root.ids.meals_screen.ids.my_meals_layout
+        table_layout = self.root.ids.foods_screen.ids.my_foods_layout
         table_layout.clear_widgets()
-        self.meals_table = MDDataTable(column_data=[(col, dp(30)) for col in Meal.columns()],
-                                       row_data=[[f'[font=Arial]{x}[/font]' for x in m.values]
-                                                 for m in meals],
-                                       check=True,
-                                       use_pagination=True
-                                       )
-        if not meals:
-            self.meals_table.title = 'No Meals Yet'
-            toast('No Meals Yet')
+        self.food_table = MDDataTable(column_data=[(col, dp(30)) for col in Food.columns()],
+                                      row_data=[[f'[font=Arial]{x}[/font]' for x in m.values]
+                                                for m in foods],
+                                      check=True,
+                                      use_pagination=True
+                                      )
+        if not foods:
+            self.food_table.title = 'No Foods Yet'
+            toast('No Foods Yet')
 
-        table_layout.add_widget(self.meals_table)
+        table_layout.add_widget(self.food_table)
 
-    def on_add_meal_pressed(self, *args):
-        if not self.add_meal_dialog:
-            self.add_meal_dialog = MealAddDialog(self)
-        self.add_meal_dialog.open()
+    def on_add_food_pressed(self, *args):
+        if not self.add_food_dialog:
+            self.add_food_dialog = FoodAddDialog(self)
+        self.add_food_dialog.open()
 
     def on_trends_pressed(self, *args, _once=[]):  # Note: mutable default parameter is on purpose here
         """Event when entering the "Trends" screen """
@@ -124,13 +128,13 @@ class CaloriesApp(MDApp):
 
         def callback(txt: str) -> None:
             self.root.ids.entry_add_screen.ids.meal_name_input.text = txt
-            with MealDB() as db:
-                self.root.ids.entry_add_screen.ids.grams_input.text = str(db.get_meal_by_name(txt).portion)
+            with FoodDB() as db:
+                self.root.ids.entry_add_screen.ids.grams_input.text = str(db.get_food_by_name(txt).portion)
             if self._drop_down:
                 self._drop_down.dismiss()
 
-        with MealDB() as mdb:
-            names = sort_by_similarity(mdb.get_all_meal_names(), target)
+        with FoodDB() as mdb:
+            names = sort_by_similarity(mdb.get_all_food_names(), target)
             for name in names[:5]:
                 self._drop_down.items.append({'viewclass': 'OneLineListItem',
                                               'text': f'[font=Arial]{name}[/font]',
@@ -145,21 +149,21 @@ class CaloriesApp(MDApp):
         portion = self.root.ids.entry_add_screen.ids.grams_input.text
         entry_date = self.root.ids.entry_add_screen.ids.date_input.text.splitlines()[-1]
         dialog = None
-        with MealDB() as mdb:
-            names = mdb.get_all_meal_names()
+        with FoodDB() as mdb:
+            names = mdb.get_all_food_names()
         if name not in names:
             def open_plus_dialog(*_):
                 print(_)
                 dialog.dismiss()
-                d = MealAddDialog(self)
-                d.meal_name.text, d.title = name, f'"{name}" not in Meals, Please add it below:'
+                d = FoodAddDialog(self)
+                d.food_name.text, d.title = name, f'"{name}" not in Foods, Please add it below:'
                 d.open()
 
             def start_search(*_):
                 dialog.dismiss()
-                self.on_search_meal_pressed(query=name)
+                self.on_search_food_pressed(query=name)
 
-            dialog = MDDialog(title=f'"{name}" not in Meals',
+            dialog = MDDialog(title=f'"{name}" not in Foods',
                               text='Try One of the options below:',
                               buttons=[
                                   MDFillRoundFlatIconButton(text="Search", icon='magnify',
@@ -174,16 +178,16 @@ class CaloriesApp(MDApp):
                 me_db.add_meal_entry(me)
                 toast(f'Added Meal entry!\n({me}')
 
-    def on_delete_meals_pressed(self, *args):
-        names = [x[0] for x in self.meals_table.get_row_checks()]
+    def on_delete_foods_pressed(self, *args):
+        names = [x[0] for x in self.food_table.get_row_checks()]
         names = [x.strip('[font=Arial]').strip('[/font]') for x in names]
 
         def remove(*a, **k):
-            with MealDB() as mdb:
+            with FoodDB() as mdb:
                 mdb.remove(names)
                 dialog.dismiss()
-                self.on_my_meals_screen_pressed()
-                toast(f'Removed {len(names)} Meal/s')
+                self.on_my_foods_screen_pressed()
+                toast(f'Removed {len(names)} Food/s')
 
         dialog = MDDialog(
             text=f"Are you sure you want to delete {len(names)} rows?",
@@ -263,12 +267,12 @@ class CaloriesApp(MDApp):
         pie_chart = plot_pie_chart(data)
         trends_layout.add_widget(pie_chart)
 
-    def on_search_meal_pressed(self, *_, query: str = '', **kwargs):
-        """ Search for a meal button pressed. """
+    def on_search_food_pressed(self, *_, query: str = '', **kwargs):
+        """ Search for a food button pressed. """
         self.root.ids.screen_manager.transition.direction = 'left'
-        self.root.ids.screen_manager.current = 'meal_search_screen'
+        self.root.ids.screen_manager.current = 'food_search_screen'
         if query:
-            self.meal_search_screen.search_input_field.text = query
+            self.food_search_screen.search_input_field.text = query
 
     def show_theme_picker(self, *args, **kwargs):
 
@@ -282,7 +286,7 @@ class CaloriesApp(MDApp):
             with open(CONFIG, 'w+') as fl:
                 parser.write(fl)
 
-        theme_dialog = MDThemePicker()
+        theme_dialog = MDColorPicker()
         theme_dialog.bind(on_dismiss=_set_theme)
         theme_dialog.open()
 
@@ -290,5 +294,9 @@ class CaloriesApp(MDApp):
         toast('Not Implemented yet')
 
 
-if __name__ == '__main__':
+def main():
     CaloriesApp().run()
+
+
+if __name__ == '__main__':
+    main()

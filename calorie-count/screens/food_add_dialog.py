@@ -1,5 +1,5 @@
-"""This Module holds a class MealAddDialog
-    - The dialog/pop-up of our calorie App that asks the user to input a new meal."""
+"""This Module holds a class FoodAddDialog
+    - The dialog/pop-up of our calorie App that asks the user to input a new food."""
 from __future__ import annotations
 from kivymd.toast import toast
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -8,7 +8,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.textfield import MDTextField
 
-from DB.meal_db import MealDB, Meal
+from DB.food_db import FoodDB, Food
 from utils.utils import RTLMDTextField
 
 
@@ -23,9 +23,9 @@ class FloatMDTextField(MDTextField):
         return super().insert_text(s, from_undo=from_undo)
 
 
-class MealAddDialog(MDDialog):
-    """A dialog/pop-up asking the user to add a new Meal."""
-    last_submission: Meal = None  # Here we can store the last Meal submission
+class FoodAddDialog(MDDialog):
+    """A dialog/pop-up asking the user to add a new Food."""
+    last_submission: Food = None  # Here we can store the last Food submission
 
     def __init__(self, app, back_dialog=None, allow_nameless: bool = False, **kwargs):
 
@@ -33,20 +33,20 @@ class MealAddDialog(MDDialog):
         self.root_window = app.root_window
 
         # dialog buttons
-        self.submit_button = MDFillRoundFlatIconButton(text="Submit Meal", icon="basket-plus",
-                                                       on_press=self.on_submit_meal_button_pressed)
+        self.submit_button = MDFillRoundFlatIconButton(text="Submit Food", icon="basket-plus",
+                                                       on_press=self.on_submit_food_button_pressed)
         self.clear_button = MDFillRoundFlatIconButton(text="Clear selection", icon="undo",
-                                                      on_press=self.on_clear_meal_button_pressed)
+                                                      on_press=self.on_clear_food_button_pressed)
         # content
         self.content = MDBoxLayout(orientation="vertical", size_hint_y=None, height=self.root_window.height * .4)
 
-        # meal name
-        self.meal_name = RTLMDTextField(hint_text="Enter name of the meal",
+        # food name
+        self.food_name = RTLMDTextField(hint_text="Enter name of the Food",
                                         font_name='Arial', icon_right="food-variant")
-        self.content.add_widget(self.meal_name)
+        self.content.add_widget(self.food_name)
 
-        # meal portion
-        self.meal_portion = MDTextField(hint_text="Enter Portion (g) of the meal", icon_right="scale")
+        # food portion
+        self.food_portion = MDTextField(hint_text="Enter Portion (g) of the Food", icon_right="scale")
 
         inner_content = MDGridLayout(cols=2)
         self.protein = FloatMDTextField(hint_text="Proteins (g)", icon_right='food-steak')
@@ -58,27 +58,27 @@ class MealAddDialog(MDDialog):
         for x in (self.protein, self.fats, self.carbs, self.water, self.sugar, self.salt):
             inner_content.add_widget(x)
         self.content.add_widget(inner_content)
-        self.bind(on_dismiss=app.on_my_meals_screen_pressed)
+        self.bind(on_dismiss=app.on_my_foods_screen_pressed)
         # building the dialog
-        super().__init__(title='Add A new Meal', type='custom',
+        super().__init__(title='Add A new Food', type='custom',
                          content_cls=self.content,
                          buttons=[self.submit_button, self.clear_button],
                          **kwargs)
 
     def check_errors(self) -> list[str]:
-        """ Make sure input is ok before adding meal to DB"""
+        """ Make sure input is ok before adding food to DB"""
         errors = []
 
         if not all((self.protein.text, self.fats.text, self.carbs)):
             errors.append('Must enter Protein Fats and Carbs!')
 
-        if not self.allow_nameless and not self.meal_name.text:
-            errors.append('No Meal Name was entered')
+        if not self.allow_nameless and not self.food_name.text:
+            errors.append('No Food Name was entered')
 
-        if self.meal_name.text:
-            with MealDB() as mdb:
-                if self.meal_name.text in mdb.get_all_meal_names():
-                    errors.append(f'Name: {self.meal_name.text} already exists!')
+        if self.food_name.text:
+            with FoodDB() as mdb:
+                if self.food_name.text in mdb.get_all_food_names():
+                    errors.append(f'Name: {self.food_name.text} already exists!')
         return errors
 
     def _sum_inputs(self) -> float:
@@ -89,10 +89,10 @@ class MealAddDialog(MDDialog):
         sum_mg = sum(float(x.text) / 1000 for x in mg_inputs if x.text)
         return sum_grams + sum_mg
 
-    def on_submit_meal_button_pressed(self, *args):
-        """When A meal is submitted:
+    def on_submit_food_button_pressed(self, *args):
+        """When A food is submitted:
             1. Check for errors
-            2. If no errors ad meal to DB (otherwise toast)"""
+            2. If no errors ad food to DB (otherwise toast)"""
         errors = self.check_errors()
         if errors:
             toast('\n'.join(errors))
@@ -100,8 +100,8 @@ class MealAddDialog(MDDialog):
 
         portion = float(self._sum_inputs())
 
-        with MealDB() as mdb:
-            meal = Meal(name=self.meal_name.text,
+        with FoodDB() as mdb:
+            food = Food(name=self.food_name.text,
                         portion=portion,
                         proteins=float(self.protein.text),
                         fats=float(self.fats.text),
@@ -110,12 +110,12 @@ class MealAddDialog(MDDialog):
                         sodium=float(self.salt.text or 0),
                         water=float(self.water.text or 0)
                         )
-            mdb.add_meal(meal)
-            self.last_submission = meal
-            toast(f'Meal {meal.name} added!')
+            mdb.add_food(food)
+            self.last_submission = food
+            toast(f'Food {food.name} added!')
 
-    def on_clear_meal_button_pressed(self, *args):
+    def on_clear_food_button_pressed(self, *args):
         """Clear all the selections."""
-        for x in (self.meal_name, self.meal_portion, self.protein, self.fats,
+        for x in (self.food_name, self.food_portion, self.protein, self.fats,
                   self.carbs, self.salt, self.sugar, self.water):
             x.text = ''

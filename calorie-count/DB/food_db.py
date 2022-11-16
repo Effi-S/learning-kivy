@@ -1,5 +1,5 @@
-"""This module holds a connection for our Meals Database "MealBD"
-Parameters to and from this DB are passed with instances of the  dataclass "Meal". """
+"""This module holds a connection for our Food Database "FoodDB"
+Parameters to and from this DB are passed with instances of the  dataclass "Food". """
 from __future__ import annotations
 import sqlite3
 from dataclasses import dataclass, field, astuple, asdict
@@ -9,8 +9,8 @@ import atexit
 
 
 @dataclass
-class Meal:
-    """This dataclass represents the data in the Meal DB"""
+class Food:
+    """This dataclass represents a row in FoodDB"""
     name: str
     portion: float  # (g)
     proteins: float  # (g)
@@ -30,28 +30,30 @@ class Meal:
 
     @property
     def cals(self):
-        """Calculate the calories of the Meal."""
+        """Calculate the calories of the Food."""
         return self.proteins * 4 + self.carbs * 4 + self.fats * 9
 
     @staticmethod
     def columns() -> tuple[str, ...]:
-        """Get all the column headers for representing a Meal to the customer."""
+        """Get all the column headers for representing a Food to the customer."""
         return 'Name', 'Portion (g)', 'Protein (g)', 'Fats (g)', 'Carbs (g)',\
                'Sugar (g)', 'Sodium (mg)', 'Water (g)', 'Calories'
 
     @property
     def values(self) -> list[str]:
-        """Get all the Values in the Meal to represent to the customer."""
+        """Get all the Values in the Food to represent to the customer."""
         return astuple(self)[:-1] + (self.cals,)  # everything but "id" + calories
 
 
-class MealDB:
+class FoodDB:
+    DB_PATH = "calorie_app"
+
     def __init__(self):
         # Connect to DB (or create one if none exists)
-        self.conn = sqlite3.connect("calorie_app", timeout=15)
+        self.conn = sqlite3.connect(self.DB_PATH, timeout=15)
         atexit.register(lambda: self.conn.close)  # for when 'with' not used
         self.cursor = self.conn.cursor()
-        self.cursor.execute('''CREATE TABLE if not exists meals(
+        self.cursor.execute('''CREATE TABLE if not exists food(
                                 name text,
                                 portion real,
                                 protein real,
@@ -70,26 +72,26 @@ class MealDB:
     def __exit__(self, *a, **k):
         self.conn.close()
 
-    def get_all_meals(self) -> list[Meal]:
-        self.cursor.execute("SELECT * FROM meals")
-        return [Meal(*x) for x in self.cursor.fetchall() if x and x[0]]
+    def get_all_foods(self) -> list[Food]:
+        self.cursor.execute("SELECT * FROM food")
+        return [Food(*x) for x in self.cursor.fetchall() if x and x[0]]
 
-    def get_all_meal_names(self) -> list[str]:
-        self.cursor.execute("SELECT name FROM meals")
+    def get_all_food_names(self) -> list[str]:
+        self.cursor.execute("SELECT name FROM food")
         return [str(x) for f in self.cursor.fetchall() for x in f if x]
 
-    def get_meal_by_name(self, name: str):
-        self.cursor.execute(" SELECT * FROM meals"
+    def get_food_by_name(self, name: str):
+        self.cursor.execute(" SELECT * FROM food"
                             f" WHERE `name` = '{name}'")
-        return Meal(*self.cursor.fetchone())
+        return Food(*self.cursor.fetchone())
 
-    def get_meal_by_id(self, id_: str):
-        self.cursor.execute(" SELECT * FROM meals"
+    def get_food_by_id(self, id_: str):
+        self.cursor.execute(" SELECT * FROM food"
                             f" WHERE `id` = '{id_}'")
-        return Meal(*self.cursor.fetchone())
+        return Food(*self.cursor.fetchone())
 
-    def add_meal(self, meal: Meal):
-        self.cursor.execute(f'INSERT INTO meals Values {astuple(meal)}', asdict(meal))
+    def add_food(self, food: Food):
+        self.cursor.execute(f'INSERT INTO food Values {astuple(food)}', asdict(food))
         self.conn.commit()
 
     def remove(self, names: list[str]) -> None:
@@ -101,9 +103,9 @@ class MealDB:
             return '({})'.format(','.join(f"'{x}'" for x in tp))
 
         # -- CHECK FOR references in Entries
-        cmd = f"""SELECT name FROM meals
+        cmd = f"""SELECT name FROM food
                     inner join meal_entries  
-                  WHERE meal_entries.meal_id = meals.id
+                  WHERE meal_entries.meal_id = food.id
                     AND name in {it2str(names)}"""
         print(cmd)
         self.cursor.execute(cmd)
@@ -111,14 +113,14 @@ class MealDB:
         to_delete = [n for n in names if n not in to_clear_name]
 
         if to_delete:
-            cmd = f"""DELETE FROM meals 
+            cmd = f"""DELETE FROM food 
                     WHERE `name` in {it2str(to_delete)};"""
             print(cmd)
             self.cursor.execute(cmd)
             self.conn.commit()
 
         if to_clear_name:
-            cmd = f"""UPDATE meals
+            cmd = f"""UPDATE food
                         SET name = ''
                       WHERE name in {it2str(to_clear_name)};"""
             print(cmd)

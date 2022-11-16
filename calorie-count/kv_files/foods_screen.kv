@@ -11,21 +11,21 @@
             orientation: 'vertical'
             padding: dp(15)
             MDLabel:
-                text: "Meals:"
+                text: "Foods:"
                 size_hint_y: .1
 
             MDBoxLayout:
-                id: my_meals_layout
+                id: my_foods_layout
 
     MDBoxLayout:
         size_hint: 1, 0.15
         pos_hint: {"x": .5, "y": 0.1}
         MDFloatingActionButton:
             icon: "delete"
-            on_press: app.on_delete_meals_pressed(*args)
+            on_press: app.on_delete_foods_pressed(*args)
         MDFloatingActionButton:
             icon: "plus"
-            on_press: app.on_add_meal_pressed(*args)
+            on_press: app.on_add_food_pressed(*args)
         MDFloatingActionButton:
             icon: "magnify"
-            on_press: app.on_search_meal_pressed(*args)
+            on_press: app.on_search_food_pressed(*args)

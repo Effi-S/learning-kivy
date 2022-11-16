@@ -1,5 +1,5 @@
-"""This Module holds a class MealAddDialog
-    - The dialog/pop-up of our calorie App that asks the user to input a new meal."""
+"""This Module holds a class FoodAddDialog
+    - The dialog/pop-up of our calorie App that asks the user to input a new food."""
 from __future__ import annotations
 
 from kivy.clock import Clock
@@ -9,12 +9,12 @@ from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.list import ThreeLineAvatarListItem, IconLeftWidget
 
 from DB.external.client import ExternalFoodsDB, FoodData
-from screens.meal_add_dialog import MealAddDialog
+from screens.food_add_dialog import FoodAddDialog
 from utils.utils import RTLMDTextField
 
 KV = '''  
-<MealSearchScreen>:
-    name: 'meal_search_screen'
+<FoodSearchScreen>:
+    name: 'food_search_screen'
     MDBoxLayout:
         orientation: "vertical"
         MDIconButton:
@@ -37,13 +37,13 @@ KV = '''
 Builder.load_string(KV)
 
 
-class MealSearchScreen(Screen):
-    """A dialog/pop-up asking the user to search for a new Meal."""
+class FoodSearchScreen(Screen):
+    """A dialog/pop-up asking the user to search for a new Food."""
 
     def __init__(self, app, **kwargs):
         super().__init__(**kwargs)
         self.app = app
-        self.search_input_field = RTLMDTextField(hint_text="Enter name of the meal to Search",
+        self.search_input_field = RTLMDTextField(hint_text="Enter name of the food to Search",
                                                  pos_hint={'center_y': 0.9},
                                                  mode='rectangle',
                                                  font_name='Arial')
@@ -59,7 +59,7 @@ class MealSearchScreen(Screen):
         self.ids.search_bar_layout.add_widget(search_button)
 
     def run_search(self, *args):
-        """ Search for the desired meal """
+        """ Search for the desired food """
 
         def _icon_from_food(f: FoodData) -> str:
             """Helper function for finding the correct icon"""
@@ -89,9 +89,9 @@ class MealSearchScreen(Screen):
                 self.ids.result_list.add_widget(list_item)
 
     def add_food(self, food: FoodData):
-        dialog = MealAddDialog(self.app)
+        dialog = FoodAddDialog(self.app)
         title, *desc = food.description.split(',')
-        dialog.meal_name.text = str(title)
+        dialog.food_name.text = str(title)
         dialog.protein.text = str(food.protein)
         dialog.fats.text = str(food.fats)
         dialog.carbs.text = str(food.carbs)

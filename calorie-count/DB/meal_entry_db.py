@@ -5,7 +5,7 @@ import sqlite3
 from dataclasses import dataclass, field
 from datetime import datetime as dt, timedelta
 import atexit
-from DB.meal_db import Meal, MealDB
+from DB.food_db import Food, FoodDB
 
 
 @dataclass
@@ -14,18 +14,18 @@ class MealEntry:
     name: str = field(default=None)
     portion: float = field(default=None)
     date: str = field(default=None)
-    meal: Meal = field(default=None)
+    meal: Food = field(default=None)
     id: str = field(default=None)  # The ID is added only when the entry is added to the DB
 
     def __post_init__(self):
         assert self.name or self.meal, 'name or meal missing'
         if self.name and not self.meal:
-            with MealDB() as mdb:
-                self.meal = mdb.get_meal_by_name(self.name)
+            with FoodDB() as mdb:
+                self.meal = mdb.get_food_by_name(self.name)
         if self.meal and not self.name:
             # means nameless meal-entry
-            with MealDB() as mdb:
-                mdb.add_meal(meal=self.meal)
+            with FoodDB() as mdb:
+                mdb.add_food(food=self.meal)
                 print(f'Added to MealDB: {self.meal}.')
 
         if not self.date:
@@ -80,9 +80,9 @@ class MealEntriesDB:
         self.cursor.execute(cmd)
         ret = []
         for entry in self.cursor.fetchall():
-            with MealDB() as mdb:
+            with FoodDB() as mdb:
                 meal_id, portion, date, e_id = entry
-                meal = mdb.get_meal_by_id(meal_id)
+                meal = mdb.get_food_by_id(meal_id)
                 ret.append(MealEntry(name=meal.name, meal=meal, portion=portion, date=date, id=e_id))
         return ret
 

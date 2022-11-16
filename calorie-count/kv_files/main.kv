@@ -1,5 +1,5 @@
 #: include ./kv_files/entry_add_screen.kv
-#: include ./kv_files/meals_screen.kv
+#: include ./kv_files/foods_screen.kv
 #: include ./kv_files/trends_screen.kv
 #: include ./kv_files/daily_screen.kv
 #: include ./kv_files/nav_drawer.kv
@@ -13,7 +13,7 @@ Screen:
                 name: "default"
                 MDBoxLayout:
                     orientation: "vertical"
-                    MDToolbar:
+                    MDTopAppBar:
             	        title: "Calorie Counter"
             	        left_action_items:[['menu', lambda x: nav_drawer.set_state("open")]]
             	        right_action_items: [['share-variant', app.export_data], ['invert-colors', app.show_theme_picker]]
@@ -21,12 +21,12 @@ Screen:
                     MDBottomNavigation:
                         id: bottom_navigation
                         MDBottomNavigationItem:
-                            name: 'my_meals'
-                            text: "My Meals"
+                            name: 'my_foods'
+                            text: "My Foods"
                             icon: 'basket'
-                            on_enter: app.on_my_meals_screen_pressed(*args)
+                            on_enter: app.on_my_foods_screen_pressed(*args)
                             MealsScreen:
-                                id: meals_screen
+                                id: foods_screen
 
                         MDBottomNavigationItem:
                             name: 'add_entry'
