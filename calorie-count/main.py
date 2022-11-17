@@ -277,14 +277,17 @@ class CaloriesApp(MDApp):
     def show_theme_picker(self, *args, **kwargs):
 
         def _set_theme(*a, **k):
-            parser = configparser.ConfigParser()
-            parser[THEME] = {
-                'theme_style': self.theme_cls.theme_style,
-                'primary_palette': self.theme_cls.primary_palette,
-                'accent_palette': self.theme_cls.accent_palette,
-            }
-            with open(CONFIG, 'w+') as fl:
-                parser.write(fl)
+            print('Hello')
+            print([x for x in dir(self.theme_cls) if '__' not in x])
+            # parser = configparser.ConfigParser()
+            # parser[THEME] = {
+            #     'theme_style': self.theme_cls.theme_style,
+            #     'primary_palette': self.theme_cls.primary_palette,
+            #     'accent_palette': self.theme_cls.accent_palette,
+            # }
+            # print(CONFIG, os.path.exists(CONFIG))
+            # with open(CONFIG, 'w+') as fl:
+            #     parser.write(fl)
 
         theme_dialog = MDColorPicker()
         theme_dialog.bind(on_dismiss=_set_theme)
