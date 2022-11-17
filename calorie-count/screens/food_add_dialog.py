@@ -90,7 +90,7 @@ class FoodAddDialog(MDDialog):
         return sum_grams + sum_mg
 
     def on_submit_food_button_pressed(self, *args):
-        """When A food is submitted:
+        """When a 'Food' is submitted:
             1. Check for errors
             2. If no errors ad food to DB (otherwise toast)"""
         errors = self.check_errors()

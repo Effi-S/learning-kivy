@@ -1,10 +1,12 @@
 """This module holds a connection for our Food Database "FoodDB"
 Parameters to and from this DB are passed with instances of the  dataclass "Food". """
 from __future__ import annotations
+
+import os.path
 import sqlite3
 from dataclasses import dataclass, field, astuple, asdict
 from datetime import datetime as dt
-from typing import Iterable
+from typing import Iterable, Tuple, Any
 import atexit
 
 
@@ -35,12 +37,12 @@ class Food:
 
     @staticmethod
     def columns() -> tuple[str, ...]:
-        """Get all the column headers for representing a Food to the customer."""
+        """Get all the column headers for representing a 'Food' to the customer."""
         return 'Name', 'Portion (g)', 'Protein (g)', 'Fats (g)', 'Carbs (g)',\
                'Sugar (g)', 'Sodium (mg)', 'Water (g)', 'Calories'
 
     @property
-    def values(self) -> list[str]:
+    def values(self) -> tuple[float, ...] | tuple[float | Any, ...]:
         """Get all the Values in the Food to represent to the customer."""
         return astuple(self)[:-1] + (self.cals,)  # everything but "id" + calories
 
@@ -49,6 +51,8 @@ class FoodDB:
     DB_PATH = "calorie_app"
 
     def __init__(self):
+        if not os.path.exists(self.DB_PATH) and os.path.exists(f'../{self.DB_PATH}'):
+            self.DB_PATH = f'../{self.DB_PATH}'
         # Connect to DB (or create one if none exists)
         self.conn = sqlite3.connect(self.DB_PATH, timeout=15)
         atexit.register(lambda: self.conn.close)  # for when 'with' not used

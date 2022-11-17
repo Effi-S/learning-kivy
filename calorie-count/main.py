@@ -1,7 +1,12 @@
+"""This module holds:
+    1. Initialization of our Calorie App.
+    2. Events referenced by .kv files."""
 from __future__ import annotations
 
 import configparser
 import os
+
+from kivymd.uix.list import OneLineIconListItem
 
 try:
     import kivy
@@ -117,31 +122,44 @@ class CaloriesApp(MDApp):
             _once.append(1)
         self.generate_trend()
 
-    def on_name_entered_in_add_entry_screen(self, c: str, *args):
-        text_field = self.root.ids.entry_add_screen.ids.meal_name_input
-        target = text_field.text + c
+    def _dismiss_drop_down(self, *args):
+        """Safely dismiss dropdown"""
         if self._drop_down:
             self._drop_down.dismiss()
-        self._drop_down = MDDropdownMenu(
-            caller=text_field,
-            width_mult=4)
+            self._drop_down = None
 
-        def callback(txt: str) -> None:
+    def on_name_entered_in_add_entry_screen(self, c: str, *args):
+        """ c is the additional character entered by the user"""
+
+        def _callback(txt: str) -> None:
             self.root.ids.entry_add_screen.ids.meal_name_input.text = txt
             with FoodDB() as db:
                 self.root.ids.entry_add_screen.ids.grams_input.text = str(db.get_food_by_name(txt).portion)
-            if self._drop_down:
-                self._drop_down.dismiss()
 
+        text_field = self.root.ids.entry_add_screen.ids.meal_name_input
+        target = text_field.text + c
+        # -- Get Dropdown Items
         with FoodDB() as mdb:
             names = sort_by_similarity(mdb.get_all_food_names(), target)
-            for name in names[:5]:
-                self._drop_down.items.append({'viewclass': 'OneLineListItem',
-                                              'text': f'[font=Arial]{name}[/font]',
-                                              'on_release': lambda txt=name: callback(txt)
-                                              })
+        items = [
+            {'viewclass': 'OneLineListItem',
+             'text': f'[font=Arial]{name}[/font]',
+             'on_release': lambda txt=name: _callback(txt)
+             }
+            for name in names[:5]
+        ]
 
-        self._drop_down.open()
+        # -- Update Dropdown
+        if not self._drop_down:
+            self._dismiss_drop_down()
+            self._drop_down = MDDropdownMenu(caller=text_field,
+                                             items=items,
+                                             width_mult=4)
+            self._drop_down.bind(on_dismiss=self._dismiss_drop_down)
+            self._drop_down.open()
+        else:
+            self._drop_down.items = items
+
         return c
 
     def on_submit_meal_entry(self, *args):
@@ -294,7 +312,21 @@ class CaloriesApp(MDApp):
         theme_dialog.open()
 
     def export_data(self, *args, **kwargs):
-        toast('Not Implemented yet')
+        def _callback():
+            toast('Not Implemented yet')
+
+        self._dismiss_drop_down()
+        self._drop_down = MDDropdownMenu(
+            items=[{"viewclass": "OneLineIconListItem",
+                    'text': 'Save',
+                    'icon': 'attachment',
+                    'on_release': _callback
+                    }
+                   ],
+            position="center",
+            caller=self.root.ids.top_app_bar,
+            width_mult=2.3)
+        self._drop_down.open()
 
 
 def main():
