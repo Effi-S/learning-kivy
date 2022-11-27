@@ -6,7 +6,10 @@ from __future__ import annotations
 import configparser
 import os
 
-from kivymd.uix.list import OneLineIconListItem
+from kivymd.uix.pickers import MDDatePicker
+
+from lib.theme.picker import MDThemePicker
+from utils import xlsx
 
 try:
     import kivy
@@ -16,7 +19,6 @@ except (Exception,):
 from screens.daily_screen import DailyScreen
 from screens.food_search import FoodSearchScreen
 from utils.plotting import plot_pie_chart, plot_graph
-from kivymd.uix.pickers import MDDatePicker, MDColorPicker
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDFillRoundFlatIconButton
 from kivymd.uix.menu import MDDropdownMenu
@@ -50,7 +52,7 @@ class CaloriesApp(MDApp):
         self._drop_down = None
 
     def build(self):
-        # Configuring theme data
+        # Configuring picker data
         parser = configparser.ConfigParser()
         parser.read(CONFIG)
         self.theme_cls.theme_style = parser.get(THEME, 'theme_style', fallback="Dark")
@@ -264,7 +266,7 @@ class CaloriesApp(MDApp):
         # -- Adding Graph of calorie sum
         data = dict.fromkeys((e.date for e in entries), 0)
         for e in entries:
-            data[e.date] += e.meal.cals
+            data[e.date] += e.food.cals
 
         graph = plot_graph(data, y_label='Calories')
         trends_layout.add_widget(graph)
@@ -272,15 +274,15 @@ class CaloriesApp(MDApp):
         # -- Adding Graph of sodium
         data = dict.fromkeys((e.date for e in entries), 0)
         for e in entries:
-            data[e.date] += e.meal.sodium
+            data[e.date] += e.food.sodium
         graph = plot_graph(data, y_label='Sodium')
         trends_layout.add_widget(graph)
 
         # -- Adding Pie Chart
         data = {
-            'Protein': sum(e.meal.proteins for e in entries),
-            'Carbs': sum(e.meal.carbs for e in entries),
-            'Fats': sum(e.meal.fats for e in entries)
+            'Protein': sum(e.food.proteins for e in entries),
+            'Carbs': sum(e.food.carbs for e in entries),
+            'Fats': sum(e.food.fats for e in entries)
         }
         pie_chart = plot_pie_chart(data)
         trends_layout.add_widget(pie_chart)
@@ -295,32 +297,33 @@ class CaloriesApp(MDApp):
     def show_theme_picker(self, *args, **kwargs):
 
         def _set_theme(*a, **k):
-            print('Hello')
-            print([x for x in dir(self.theme_cls) if '__' not in x])
-            # parser = configparser.ConfigParser()
-            # parser[THEME] = {
-            #     'theme_style': self.theme_cls.theme_style,
-            #     'primary_palette': self.theme_cls.primary_palette,
-            #     'accent_palette': self.theme_cls.accent_palette,
-            # }
-            # print(CONFIG, os.path.exists(CONFIG))
-            # with open(CONFIG, 'w+') as fl:
-            #     parser.write(fl)
+            parser = configparser.ConfigParser()
+            parser[THEME] = {
+                'theme_style': self.theme_cls.theme_style,
+                'primary_palette': self.theme_cls.primary_palette,
+                'accent_palette': self.theme_cls.accent_palette,
+            }
+            with open(CONFIG, 'w+') as fl:
+                parser.write(fl)
 
-        theme_dialog = MDColorPicker()
+        theme_dialog = MDThemePicker()
         theme_dialog.bind(on_dismiss=_set_theme)
         theme_dialog.open()
 
+
     def export_data(self, *args, **kwargs):
-        def _callback():
-            toast('Not Implemented yet')
 
         self._dismiss_drop_down()
         self._drop_down = MDDropdownMenu(
             items=[{"viewclass": "OneLineIconListItem",
                     'text': 'Save',
                     'icon': 'attachment',
-                    'on_release': _callback
+                    'on_release': xlsx.save_to_excel
+                    },
+                   {"viewclass": "OneLineIconListItem",
+                    'text': 'Import existing',
+                    'icon': 'attachment',
+                    'on_release': xlsx.import_excel
                     }
                    ],
             position="center",

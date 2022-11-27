@@ -56,17 +56,17 @@ class DailyScreen(ScrollView):
         with MealEntriesDB() as me_db:
             entries = me_db.get_entries_between_dates(day.isoformat(), day.isoformat())
 
-        cals = sum(e.meal.cals for e in entries)
+        cals = sum(e.food.cals for e in entries)
         self.ids.total_cals_label.text = f'{cals: .2f}'
 
         # -- Create List of Entries
         entry_list: MDList = self.ids.daily_entries_list
         entry_list.clear_widgets()
         for i, entry in enumerate(entries, 1):
-            text = entry.meal.name or f'Meal {i} (Unnamed)'
+            text = entry.food.name or f'Meal {i} (Unnamed)'
             entry_list.add_widget(ListEntry(entry_list, entry,
                                             text=f'[font=Arial]{text}[/font]',
-                                            secondary_text=f'Calories: {entry.meal.cals: .2f}'))
+                                            secondary_text=f'Calories: {entry.food.cals: .2f}'))
 
     def get_day(self) -> date:
         """Get a date object parsed from the label displayed in Daily screen"""
