@@ -1,9 +1,6 @@
 TODO
 -----
-# Save to xlsx.
-# Load from xlsx.
 # Add tests.
-# Theme Picker deprecated. - find solution
 # Add pylint
 
 # Add a "+" action button to daily screen

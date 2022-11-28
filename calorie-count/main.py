@@ -5,16 +5,19 @@ from __future__ import annotations
 
 import configparser
 import os
+from typing import Callable
 
-from kivymd.uix.pickers import MDDatePicker
-
-from lib.theme.picker import MDThemePicker
-from utils import xlsx
+from kivymd.uix.filemanager import MDFileManager
 
 try:
     import kivy
 except (Exception,):
     os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # (debug w/ Windows + GPU)
+
+from kivymd.uix.pickers import MDDatePicker
+
+from lib.theme.picker import MDThemePicker
+from utils import xlsx
 
 from screens.daily_screen import DailyScreen
 from screens.food_search import FoodSearchScreen
@@ -310,20 +313,62 @@ class CaloriesApp(MDApp):
         theme_dialog.bind(on_dismiss=_set_theme)
         theme_dialog.open()
 
+    def open_xlsx_dropdown(self, *args, **kwargs):
+        def save_to_xlsx():  # option 1 - Save
+            def _on_selected(fl, *a):  # file selected  => Are you sure Dialog
+                def _save(*a_, **k):  # User chooses to save selected file
+                    xlsx.save_to_excel(target)
+                    toast(f'Saved: {target}')
+                    dialog.dismiss()
 
-    def export_data(self, *args, **kwargs):
+                target = f'{fl}/Calorie_Counting_{dt.now():%F}.xlsx'
+                dialog = MDDialog(
+                        text=f"Are you sure you want to Save:\n{target}?",
+                        buttons=[MDFlatButton(text="CANCEL", on_press=lambda *a_, **k_: dialog.dismiss()),
+                                 MDFlatButton(text="SAVE", on_press=_save)],
+                        on_dismiss=lambda *a_: file_manager.close()
+                    )
+                dialog.open()
+
+            file_manager = MDFileManager(
+                search='dirs',
+                select_path=_on_selected  # function called when selecting a file/directory
+            )
+            file_manager.show(os.path.expanduser("~"))
+
+        def import_xlsx():   # option 2 - Save
+            def _on_selected(fl):  # file selected  => Are you sure Dialog
+                def _load(*a_, **k_):  # User finally chose
+                    print('Loading:', fl)
+                    xlsx.import_excel(fl)
+
+                dialog = MDDialog(
+                        text=f"Are you sure you want to Load:\n{fl}?",
+                        buttons=[MDFlatButton(text="CANCEL", on_press=lambda *a_, **k_: dialog.dismiss()),
+                                 MDFlatButton(text="LOAD", on_press=_load)],
+                        on_dismiss=lambda *a_: file_manager.close()
+                    )
+                dialog.open()
+                print(fl)
+                file_manager.close()
+
+            file_manager = MDFileManager(
+                ext=['.xlsx', ],
+                select_path=_on_selected  # function called when selecting a file/directory
+            )
+            file_manager.show(os.path.expanduser("~"))
 
         self._dismiss_drop_down()
         self._drop_down = MDDropdownMenu(
             items=[{"viewclass": "OneLineIconListItem",
                     'text': 'Save',
                     'icon': 'attachment',
-                    'on_release': xlsx.save_to_excel
+                    'on_release': save_to_xlsx
                     },
                    {"viewclass": "OneLineIconListItem",
                     'text': 'Import existing',
                     'icon': 'attachment',
-                    'on_release': xlsx.import_excel
+                    'on_release': import_xlsx
                     }
                    ],
             position="center",
