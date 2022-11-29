@@ -47,11 +47,13 @@ class MealEntry:
     @staticmethod
     def columns() -> tuple[str, ...]:
         """The columns for displaying """
-        return 'Date', 'Name', 'Portion (g)', 'Protein (g)', 'Fats (g)',
+        return 'Date', 'Name', 'Portion (g)', 'Protein (g)', 'Fats (g)', 'Carbs (g)', 'Sugar (g)', 'Sodium (mg)', \
+               'Water (g)', 'Calories'
 
     @property
     def values(self) -> tuple:
-        return self.date, self.name, self.portion, self.food.proteins, self.food.fats
+        return self.date, self.name, self.portion, self.food.proteins, self.food.fats, self.food.carbs, \
+               self.food.sugar, self.food.sodium, self.food.water, self.food.cals
 
 
 class MealEntriesDB:

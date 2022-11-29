@@ -135,7 +135,6 @@ class CaloriesApp(MDApp):
 
     def on_name_entered_in_add_entry_screen(self, c: str, *args):
         """ c is the additional character entered by the user"""
-
         def _callback(txt: str) -> None:
             self.root.ids.entry_add_screen.ids.meal_name_input.text = txt
             with FoodDB() as db:
@@ -143,28 +142,34 @@ class CaloriesApp(MDApp):
 
         text_field = self.root.ids.entry_add_screen.ids.meal_name_input
         target = text_field.text + c
-        # -- Get Dropdown Items
+
+        # -- Create Dropdown Items from similar names in DB to our target
         with FoodDB() as mdb:
-            names = sort_by_similarity(mdb.get_all_food_names(), target)
+            names = sort_by_similarity(mdb.get_all_food_names(), target)[:5]
+        if not names:
+            return c
+
         items = [
             {'viewclass': 'OneLineListItem',
              'text': f'[font=Arial]{name}[/font]',
              'on_release': lambda txt=name: _callback(txt)
              }
-            for name in names[:5]
-        ]
+            for name in names]
 
-        # -- Update Dropdown
-        if not self._drop_down:
-            self._dismiss_drop_down()
-            self._drop_down = MDDropdownMenu(caller=text_field,
-                                             items=items,
-                                             width_mult=4)
-            self._drop_down.bind(on_dismiss=self._dismiss_drop_down)
-            self._drop_down.open()
-        else:
-            self._drop_down.items = items
+        # -- Update Dropdown if exists and Only appending needed
+        if self._drop_down:
+            current_names = {x.get('text').rstrip('[/font]').strip('[font=Arial]')
+                             for x in self._drop_down.items}
+            print(current_names, names, current_names.issubset(set(names)))
+            if current_names.issubset(set(names)):
+                self._drop_down.items = items
+                return c
 
+        # -- Re-create dop-down
+        self._dismiss_drop_down()
+        self._drop_down = MDDropdownMenu(caller=text_field, items=items, width_mult=4)
+        self._drop_down.bind(on_dismiss=self._dismiss_drop_down)
+        self._drop_down.open()
         return c
 
     def on_submit_meal_entry(self, *args):
@@ -322,32 +327,28 @@ class CaloriesApp(MDApp):
                     dialog.dismiss()
 
                 target = f'{fl}/Calorie_Counting_{dt.now():%F}.xlsx'
-                dialog = MDDialog(
-                        text=f"Are you sure you want to Save:\n{target}?",
-                        buttons=[MDFlatButton(text="CANCEL", on_press=lambda *a_, **k_: dialog.dismiss()),
-                                 MDFlatButton(text="SAVE", on_press=_save)],
-                        on_dismiss=lambda *a_: file_manager.close()
-                    )
+                dialog = MDDialog(text=f"Are you sure you want to Save:\n{target}?",
+                                  buttons=[MDFlatButton(text="CANCEL", on_press=lambda *a_, **k_: dialog.dismiss()),
+                                           MDFlatButton(text="SAVE", on_press=_save)],
+                                  on_dismiss=lambda *a_: file_manager.close())
                 dialog.open()
 
-            file_manager = MDFileManager(
-                search='dirs',
-                select_path=_on_selected  # function called when selecting a file/directory
-            )
+            file_manager = MDFileManager(search='dirs',
+                                         select_path=_on_selected)  # function called when selecting a file/directory
             file_manager.show(os.path.expanduser("~"))
 
-        def import_xlsx():   # option 2 - Save
+        def import_xlsx():  # option 2 - Save
             def _on_selected(fl):  # file selected  => Are you sure Dialog
                 def _load(*a_, **k_):  # User finally chose
                     print('Loading:', fl)
                     xlsx.import_excel(fl)
 
                 dialog = MDDialog(
-                        text=f"Are you sure you want to Load:\n{fl}?",
-                        buttons=[MDFlatButton(text="CANCEL", on_press=lambda *a_, **k_: dialog.dismiss()),
-                                 MDFlatButton(text="LOAD", on_press=_load)],
-                        on_dismiss=lambda *a_: file_manager.close()
-                    )
+                    text=f"Are you sure you want to Load:\n{fl}?",
+                    buttons=[MDFlatButton(text="CANCEL", on_press=lambda *a_, **k_: dialog.dismiss()),
+                             MDFlatButton(text="LOAD", on_press=_load)],
+                    on_dismiss=lambda *a_: file_manager.close()
+                )
                 dialog.open()
                 print(fl)
                 file_manager.close()

@@ -3,10 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="f39a7eea-ea52-4281-a595-90a7cff35e55" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Calorie_Counting.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Calorie_Counting.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kv_files/main.kv" beforeDir="false" afterPath="$PROJECT_DIR$/kv_files/main.kv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Calorie_Counting.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Calorie_Counting_2022-11-28.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/food_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/DB/food_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB/meal_entry_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/DB/meal_entry_db.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo.txt" beforeDir="false" afterPath="$PROJECT_DIR$/todo.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/xlsx.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/xlsx.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -162,10 +164,10 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.xlsx" />
         <item itemvalue="Python.file_explore_dialog" />
         <item itemvalue="Python.picker" />
         <item itemvalue="Python.theme" />
-        <item itemvalue="Python.xlsx" />
       </list>
     </recent_temporary>
   </component>

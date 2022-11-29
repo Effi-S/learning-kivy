@@ -1,11 +1,8 @@
 """ Here we store Excel utilities """
-from dataclasses import astuple
-
 import openpyxl
-from kivymd.toast import toast
 
-from DB.food_db import FoodDB
-from DB.meal_entry_db import MealEntriesDB
+from DB.food_db import FoodDB, Food
+from DB.meal_entry_db import MealEntriesDB, MealEntry
 
 DEFAULT_XLSX = 'Calorie_Counting.xlsx'
 FOOD_SHEET = 'My Foods'
@@ -33,7 +30,7 @@ def save_to_excel(path: str = DEFAULT_XLSX, *args) -> None:
         entries = mdb.get_entries_between_dates(start, end)
         print(entries)
     if entries:
-        sh.append(entries[0].columns())
+        sh.append(MealEntry.columns())
         for entry in entries:
             sh.append(entry.values)
 
@@ -43,7 +40,35 @@ def save_to_excel(path: str = DEFAULT_XLSX, *args) -> None:
 
 
 def import_excel(path: str = DEFAULT_XLSX, *args) -> None:
-    toast('Not implemented yet')
+    """Load Foods and entries from xlsx file
+    The file must have 2 sheets: 'My Foods' and 'My Meal Entries'
+    The entries are added to the existing entries."""
+    wb = openpyxl.load_workbook(path)
+
+    # --1-- Reading Foods sheet
+
+    gen = wb[FOOD_SHEET].iter_rows(values_only=True)
+    headers = next(gen)
+    assert headers == Food.columns(), f'Invalid Sheet: {FOOD_SHEET}\n' \
+                                      f'Expected: {Food.columns}\nGot: {headers}'
+    with FoodDB() as fdb:
+        for row in gen:
+            food = Food(*row)
+            fdb.add_food(food, update=True)
+
+    # --2-- Reading meals sheet
+    gen = wb[MEALS_SHEET].iter_rows(values_only=True)
+    headers = next(gen)
+    assert headers == MealEntry.columns(), f'Invalid Sheet: {MEALS_SHEET}\n' \
+                                           f'Expected: {MealEntry.columns}\nGot: {headers}'
+    with MealEntriesDB() as mdb:
+        for row in gen:
+            date, name, portion, *_ = row
+            entry = MealEntry(name=name, date=date, portion=portion)
+            mdb.add_meal_entry(entry)
+    print(f'{path} Loaded!')
 
 
-# save_to_excel()
+if __name__ == '__main__':
+    save_to_excel()
+    import_excel()

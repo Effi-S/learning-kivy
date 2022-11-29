@@ -58,7 +58,7 @@ class FoodDB:
         atexit.register(lambda: self.conn.close)  # for when 'with' not used
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE if not exists food(
-                                name text,
+                                name text PRIMARY KEY,
                                 portion real,
                                 protein real,
                                 fats real,
@@ -94,8 +94,10 @@ class FoodDB:
                             f" WHERE `id` = '{id_}'")
         return Food(*self.cursor.fetchone())
 
-    def add_food(self, food: Food):
-        self.cursor.execute(f'INSERT INTO food Values {astuple(food)}', asdict(food))
+    def add_food(self, food: Food, update: bool = False):
+        """update => existing Foods are updated"""
+        or_update = 'OR UPDATE' if update else ''
+        self.cursor.execute(f'INSERT {or_update} INTO food Values {astuple(food)}', asdict(food))
         self.conn.commit()
 
     def remove(self, names: list[str]) -> None:
