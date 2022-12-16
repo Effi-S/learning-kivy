@@ -6,7 +6,7 @@ from kivy.uix.scrollview import ScrollView
 from kivymd.toast import toast
 from kivymd.uix.list import MDList, TwoLineAvatarIconListItem, IconRightWidget
 
-from DB.meal_entry_db import MealEntriesDB, MealEntry
+from src.DB.meal_entry_db import MealEntry, MealEntryDB
 
 
 class ListEntry(TwoLineAvatarIconListItem):
@@ -36,7 +36,7 @@ class ListEntry(TwoLineAvatarIconListItem):
     def on_del_icon_pressed(self, icon: IconRightWidget, *_a, **_k):
         """Callback for when delete icon on list item pressed."""
         self.entry_list.remove_widget(self)
-        with MealEntriesDB() as db:
+        with MealEntryDB() as db:
             db.delete_entry(self.entry_id)
         toast(f'{self.text} Removed')
 
@@ -53,7 +53,7 @@ class DailyScreen(ScrollView):
         self.ids.total_cals_header_label.text = f'Total Calories {day_lbl}'
 
         # -- Set Sum
-        with MealEntriesDB() as me_db:
+        with MealEntryDB() as me_db:
             entries = me_db.get_entries_between_dates(day.isoformat(), day.isoformat())
 
         cals = sum(e.food.cals for e in entries)

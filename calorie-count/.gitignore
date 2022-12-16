@@ -1,5 +1,5 @@
 __pycache__
 activate
 venv
-calorie_app
+src/calorie_app
 *.json

@@ -141,7 +141,7 @@ argument receives the `filename`.::
                         'G5', 'G5'), rotation=90)
     ax.legend((rects1[0], rects2[0]), ('Men', 'Women'))
     plt.draw()
-    plt.savefig("test.png")
+    plt.savefig("tests.png")
     plt.show()
 
 
@@ -184,11 +184,11 @@ is released, `motion_notify_event` which is raised when the mouse is on motion,
 `axes_leave_event` which is fired when mouse leaves axes.::
 
     def press(event):
-        print('press released from test', event.x, event.y, event.button)
+        print('press released from tests', event.x, event.y, event.button)
 
 
     def release(event):
-        print('release released from test', event.x, event.y, event.button)
+        print('release released from tests', event.x, event.y, event.button)
 
 
     def keypress(event):

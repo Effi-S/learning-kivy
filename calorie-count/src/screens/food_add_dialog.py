@@ -8,8 +8,8 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.textfield import MDTextField
 
-from DB.food_db import FoodDB, Food
-from utils.utils import RTLMDTextField
+from src.DB.food_db import FoodDB, Food
+from src.utils.utils import RTLMDTextField
 
 
 class FloatMDTextField(MDTextField):

@@ -1,8 +1,8 @@
 """ Here we store Excel utilities """
 import openpyxl
 
-from DB.food_db import FoodDB, Food
-from DB.meal_entry_db import MealEntriesDB, MealEntry
+from src.DB.food_db import FoodDB, Food
+from src.DB.meal_entry_db import MealEntryDB, MealEntry
 
 DEFAULT_XLSX = 'Calorie_Counting.xlsx'
 FOOD_SHEET = 'My Foods'
@@ -25,7 +25,7 @@ def save_to_excel(path: str = DEFAULT_XLSX, *args) -> None:
 
     # --2-- Creating meals sheet
     sh = wb.create_sheet(MEALS_SHEET)
-    with MealEntriesDB() as mdb:
+    with MealEntryDB() as mdb:
         start, end = map(str, mdb.get_first_last_dates())
         entries = mdb.get_entries_between_dates(start, end)
         print(entries)
@@ -61,7 +61,7 @@ def import_excel(path: str = DEFAULT_XLSX, *args) -> None:
     headers = next(gen)
     assert headers == MealEntry.columns(), f'Invalid Sheet: {MEALS_SHEET}\n' \
                                            f'Expected: {MealEntry.columns}\nGot: {headers}'
-    with MealEntriesDB() as mdb:
+    with MealEntryDB() as mdb:
         for row in gen:
             date, name, portion, *_ = row
             entry = MealEntry(name=name, date=date, portion=portion)

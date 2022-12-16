@@ -58,7 +58,7 @@ Backend KivyAgg Events
 The events available are the same events available from Backend Kivy.::
 
     def my_callback(event):
-        print('press released from test', event.x, event.y, event.button)
+        print('press released from tests', event.x, event.y, event.button)
 
     fig.canvas.mpl_connect('mpl_event', my_callback)
 

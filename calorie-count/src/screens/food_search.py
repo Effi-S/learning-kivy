@@ -8,9 +8,9 @@ from kivy.uix.screenmanager import Screen
 from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.list import ThreeLineAvatarListItem, IconLeftWidget
 
-from DB.external.client import ExternalFoodsDB, FoodData
-from screens.food_add_dialog import FoodAddDialog
-from utils.utils import RTLMDTextField
+from src.DB.external.client import FoodData, ExternalFoodsDB
+from src.screens.food_add_dialog import FoodAddDialog
+from src.utils.utils import RTLMDTextField
 
 KV = '''  
 <FoodSearchScreen>:
