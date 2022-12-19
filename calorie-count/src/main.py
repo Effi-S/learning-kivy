@@ -2,45 +2,39 @@
     1. Initialization of our Calorie App.
     2. Events referenced by .kv files."""
 from __future__ import annotations
-
 import os
-
-from kivymd.uix.filemanager import MDFileManager
-
-from src.DB.food_db import FoodDB, Food
-from src.DB.meal_entry_db import MealEntryDB, MealEntry
-from src.screens.food_add_dialog import FoodAddDialog
-from src.utils.consts import MAIN_KV
 
 try:
     import kivy
 except (Exception,):
     os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # (debug w/ Windows + GPU)
+from kivy.clock import Clock
+from kivy.metrics import dp
+from kivy.lang import Builder
 
+from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.pickers import MDDatePicker
-
-from lib.theme.picker import MDThemePicker
-from src.utils import config, xlsx
-
-from src.screens.daily_screen import DailyScreen
-from src.screens.food_search import FoodSearchScreen
-from src.utils.plotting import plot_pie_chart, plot_graph
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDFillRoundFlatIconButton
 from kivymd.uix.menu import MDDropdownMenu
-
-from kivy.clock import Clock
-from kivy.metrics import dp
 from kivymd.toast import toast
 from kivymd.uix.datatables import MDDataTable
-
-from kivy.lang import Builder
 from kivymd.app import MDApp
 
 from datetime import datetime as dt
 from datetime import timedelta
 
+from lib.theme.picker import MDThemePicker
+
+from src.DB.food_db import FoodDB, Food
+from src.DB.meal_entry_db import MealEntryDB, MealEntry
+from src.utils.consts import MAIN_KV
+from src.utils import config, xlsx
+from src.utils.plotting import plot_pie_chart, plot_graph
 from src.utils.utils import sort_by_similarity
+from src.screens.daily_screen import DailyScreen
+from src.screens.food_search import FoodSearchScreen
+from src.screens.food_add_dialog import FoodAddDialog
 
 
 class CaloriesApp(MDApp):
@@ -109,7 +103,7 @@ class CaloriesApp(MDApp):
             self.add_food_dialog = FoodAddDialog(self)
         self.add_food_dialog.open()
 
-    def on_trends_pressed(self, *args, _once=[]):  # Note: mutable default parameter is on purpose here
+    def on_trends_pressed(self, *args, _once=[]):  # Mutable default parameter on purpose
         """Event when entering the "Trends" screen """
         if not _once:
             # Setting the Dates in trends between today and 7 days ago
@@ -134,7 +128,8 @@ class CaloriesApp(MDApp):
         def _callback(txt: str) -> None:
             self.root.ids.entry_add_screen.ids.meal_name_input.text = txt
             with FoodDB() as db:
-                self.root.ids.entry_add_screen.ids.grams_input.text = str(db.get_food_by_name(txt).portion)
+                self.root.ids.entry_add_screen.ids.grams_input.text = \
+                    str(db.get_food_by_name(txt).portion)
 
         text_field = self.root.ids.entry_add_screen.ids.meal_name_input
         target = text_field.text + c
@@ -319,13 +314,13 @@ class CaloriesApp(MDApp):
 
                 target = f'{fl}/Calorie_Counting_{dt.now():%F}.xlsx'
                 dialog = MDDialog(text=f"Are you sure you want to Save:\n{target}?",
-                                  buttons=[MDFlatButton(text="CANCEL", on_press=lambda *a_, **k_: dialog.dismiss()),
+                                  buttons=[MDFlatButton(text="CANCEL",
+                                                        on_press=lambda *a_, **k_: dialog.dismiss()),
                                            MDFlatButton(text="SAVE", on_press=_save)],
                                   on_dismiss=lambda *a_: file_manager.close())
                 dialog.open()
 
-            file_manager = MDFileManager(search='dirs',
-                                         select_path=_on_selected)  # function called when selecting a file/directory
+            file_manager = MDFileManager(search='dirs', select_path=_on_selected)
             file_manager.show(os.path.expanduser("~"))
 
         def import_xlsx():  # option 2 - Save

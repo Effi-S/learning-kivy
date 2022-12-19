@@ -12,7 +12,7 @@ from src.DB.external.client import FoodData, ExternalFoodsDB
 from src.screens.food_add_dialog import FoodAddDialog
 from src.utils.kivy_components import RTLMDTextField
 
-KV = '''  
+KV = '''
 <FoodSearchScreen>:
     name: 'food_search_screen'
     MDBoxLayout:
@@ -66,9 +66,9 @@ class FoodSearchScreen(Screen):
             p, f, c = f.protein, f.fats, f.carbs
             if p > f and p > c:
                 return 'food-steak'
-            elif f > p and f > c:
+            if f > p and f > c:
                 return 'fish'
-            elif c > p and c > f:
+            if c > p and c > f:
                 return 'noodles'
             return 'food'
 
@@ -81,8 +81,12 @@ class FoodSearchScreen(Screen):
                 title, *desc = food.description.split(',')
                 if desc:
                     title = f'{desc.pop(0)} - {title}'
-                tertiary = f'Protein: {food.protein}, Fat: {food.fats}, Carbs: {food.carbs}\n' \
-                           f' Sodium: {food.sodium}, Sugar: {food.sugar}, Water: {food.water}'
+                tertiary = f'Protein: {food.protein}, ' \
+                           f'Fat: {food.fats}, ' \
+                           f'Carbs: {food.carbs}\n' \
+                           f' Sodium: {food.sodium},' \
+                           f' Sugar: {food.sugar}, ' \
+                           f'Water: {food.water}'
                 list_item = ThreeLineAvatarListItem(text=title, secondary_text=",".join(desc), tertiary_text=tertiary)
                 list_item.add_widget(IconLeftWidget(icon=_icon_from_food(food)))
                 list_item.bind(on_press=lambda *a, f=food, **k: self.add_food(f))
