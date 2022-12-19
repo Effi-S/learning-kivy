@@ -2,7 +2,7 @@
 # Dependencies:
 - python3.8 (or higher)
 - kivy
-- kivymd==1.0.2
+- kivymd==1.1.1
 - matplotlib
 # Usage:
 - Run: "python3 main.py
