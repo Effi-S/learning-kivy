@@ -6,7 +6,6 @@ import sqlite3
 from dataclasses import dataclass, field, astuple, asdict
 from datetime import datetime as dt
 from typing import Iterable, Any, Optional
-import atexit
 
 from src.utils import config
 
@@ -53,7 +52,6 @@ class FoodDB:
         db_path = db_path or config.get_db_path()
         # Connect to DB (or create one if none exists)
         self.conn = sqlite3.connect(db_path, timeout=15)
-        atexit.register(lambda: self.conn.close)  # for when 'with' not used
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE if not exists food(
                                 name text PRIMARY KEY,
@@ -84,22 +82,18 @@ class FoodDB:
 
     def get_food_by_name(self, name: str):
         cmd = f" SELECT * FROM food  WHERE `name` = '{name}'"
-        print(cmd)
         self.cursor.execute(cmd)
-        f1 = self.cursor.fetchone()
-        print(f1)
-        return Food(*(f1 or ()))
+        return Food(*(self.cursor.fetchone() or ()))
 
     def get_food_by_id(self, id_: str):
         cmd = f" SELECT * FROM food WHERE `id` = '{id_}'"
-        print(cmd)
+        self.cursor.execute(cmd)
         return Food(*self.cursor.fetchone())
 
     def add_food(self, food: Food, update: bool = False):
         """update => existing Foods are updated"""
         or_update = 'OR UPDATE' if update else ''
         cmd = f'INSERT {or_update} INTO food Values {astuple(food)}'
-        print(cmd)
         self.cursor.execute(cmd, asdict(food))
         self.conn.commit()
 
@@ -118,7 +112,6 @@ class FoodDB:
                     inner join meal_entries  
                   WHERE meal_entries.meal_id = food.id
                     AND name in {it2str(names)}"""
-        print(cmd)
         self.cursor.execute(cmd)
         to_clear_name = [x for tp in self.cursor.fetchall() for x in tp]
         to_delete = [n for n in names if n not in to_clear_name]

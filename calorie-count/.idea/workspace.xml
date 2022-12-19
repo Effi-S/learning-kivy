@@ -5,53 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f39a7eea-ea52-4281-a595-90a7cff35e55" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/consts.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit_tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit_tests/test_DB/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit_tests/test_DB/test_food_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit_tests/test_DB/test_meal_entry_db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit_tests/test_screens/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit_tests/test_utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit_tests/test_utils/test_plotting.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit_tests/test_utils/test_utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/unit_tests/test_utils/test_xlsx.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../_deploy_tips.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../_deploy_tips.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/DB/config.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/kivy_components.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Arial.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/src/Arial.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/config.ini" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/config.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/external/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/external/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/external/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/external/client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/external/external_foods" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/external/external_foods" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/external/parsing.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/external/parsing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/food_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/food_db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/meal_entry_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/meal_entry_db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DB/user_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/user_db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/__main__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/buildozer.spec" beforeDir="false" afterPath="$PROJECT_DIR$/buildozer.spec" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cc.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kv_files/daily_screen.kv" beforeDir="false" afterPath="$PROJECT_DIR$/src/kv_files/daily_screen.kv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kv_files/entry_add_screen.kv" beforeDir="false" afterPath="$PROJECT_DIR$/src/kv_files/entry_add_screen.kv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kv_files/foods_screen.kv" beforeDir="false" afterPath="$PROJECT_DIR$/src/kv_files/foods_screen.kv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kv_files/main.kv" beforeDir="false" afterPath="$PROJECT_DIR$/src/kv_files/main.kv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kv_files/nav_drawer.kv" beforeDir="false" afterPath="$PROJECT_DIR$/src/kv_files/nav_drawer.kv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kv_files/trends_screen.kv" beforeDir="false" afterPath="$PROJECT_DIR$/src/kv_files/trends_screen.kv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/kmplot/backend_kivy.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/kmplot/backend_kivy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/kmplot/backend_kivyagg.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/kmplot/backend_kivyagg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/daily_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/daily_screen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/food_add_dialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/food_add_dialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screens/food_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/food_search.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo.txt" beforeDir="false" afterPath="$PROJECT_DIR$/todo.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/plotting.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/plotting.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/xlsx.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/xlsx.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calorie_app" beforeDir="false" afterPath="$PROJECT_DIR$/calorie_app.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DB/food_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/food_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DB/meal_entry_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/DB/meal_entry_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/food_add_dialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/food_add_dialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/food_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/screens/food_search.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/config.ini" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/unit_tests/test_DB/config.ini" beforeDir="false" afterPath="$PROJECT_DIR$/tests/unit_tests/test_DB/config.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/unit_tests/test_DB/test_food_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/unit_tests/test_DB/test_food_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/unit_tests/test_DB/test_meal_entry_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/unit_tests/test_DB/test_meal_entry_db.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,28 +62,7 @@
       <recent name="C:\Users\effi\Desktop\Effi\learning-kivy\calorie-count\lib\theme" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Python tests for test_meal_entry_db.TestFoodDB">
-    <configuration name="__main__ (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="calorie-count" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/__main__.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.__main__">
     <configuration name="__main__" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="calorie-count" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -138,7 +84,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test_meal_entry_db.TestFoodDB" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for test_food_db.TestFoodDB.test_remove" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="calorie-count" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -148,7 +94,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_meal_entry_db.TestFoodDB&quot;" />
+      <option name="_new_target" value="&quot;test_food_db.TestFoodDB.test_remove&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
@@ -163,6 +109,20 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;test_meal_entry_db.TestFoodDB.test_add_meal_entry&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for test_meal_entry_db.TestFoodDB.test_get_first_last_dates" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="calorie-count" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/unit_tests/test_DB" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_meal_entry_db.TestFoodDB.test_get_first_last_dates&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
@@ -196,19 +156,19 @@
     </configuration>
     <list>
       <item itemvalue="Python.__main__" />
-      <item itemvalue="Python.__main__ (1)" />
-      <item itemvalue="Python tests.Python tests for test_meal_entry_db.TestFoodDB" />
+      <item itemvalue="Python tests.Python tests for test_food_db.TestFoodDB.test_remove" />
+      <item itemvalue="Python tests.Python tests for test_meal_entry_db.TestFoodDB.test_get_first_last_dates" />
       <item itemvalue="Python tests.Python tests for test_meal_entry_db.TestFoodDB.test_add_meal_entry" />
       <item itemvalue="Python tests.Python tests in test_food_db.py" />
       <item itemvalue="Python tests.Python tests in test_meal_entry_db.py" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.Python tests for test_meal_entry_db.TestFoodDB" />
-        <item itemvalue="Python tests.Python tests in test_food_db.py" />
         <item itemvalue="Python tests.Python tests in test_meal_entry_db.py" />
+        <item itemvalue="Python tests.Python tests for test_meal_entry_db.TestFoodDB.test_get_first_last_dates" />
         <item itemvalue="Python tests.Python tests for test_meal_entry_db.TestFoodDB.test_add_meal_entry" />
-        <item itemvalue="Python.__main__ (1)" />
+        <item itemvalue="Python tests.Python tests for test_food_db.TestFoodDB.test_remove" />
+        <item itemvalue="Python tests.Python tests in test_food_db.py" />
       </list>
     </recent_temporary>
   </component>
@@ -233,16 +193,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/DB/meal_entry_db.py</url>
-          <line>45</line>
-          <option name="timeStamp" value="15" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

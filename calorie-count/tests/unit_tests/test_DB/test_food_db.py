@@ -1,24 +1,18 @@
-import atexit
-import os
 import unittest
-import uuid
-
 from src.DB.food_db import FoodDB, Food
 from src.DB.meal_entry_db import MealEntryDB
 from src.utils import config
 
 
 class TestFoodDB(unittest.TestCase):
+
     def setUp(self):
         # Create a new instance of FoodDB for each test method
         config.set_db_path_test()
         self.db = FoodDB()
         with MealEntryDB():  # So table will exist as well
             pass
-        super().setUpClass()
-
-    def tearDown(self) -> None:
-        self.db.conn.close()
+        super().setUp()
 
     def test_remove(self):
         # Add food to the database

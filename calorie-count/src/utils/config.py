@@ -6,7 +6,8 @@ import uuid
 from pathlib import Path
 
 CONFIG = next(Path().glob('**/config.ini'), None)
-assert CONFIG, 'Could not find config.ini'
+if not CONFIG:
+    CONFIG = Path('config.ini')
 THEME_HEADER = 'THEME'
 DB_PATH_HEADER, DB_PATH_SECTION = "DB_PATH", 'path'
 
@@ -42,17 +43,25 @@ def get_db_path(config_path: str = CONFIG) -> str:
     return parser.get(DB_PATH_HEADER, DB_PATH_SECTION, fallback="Dark")
 
 
-def set_db_path_test(config_path: str = CONFIG):
+def _set_db_path(path: str = 'calorie_app.db', config_path: str = CONFIG):
+    parser = configparser.ConfigParser()
+    parser[DB_PATH_HEADER] = {DB_PATH_SECTION: path}
+    with open(config_path, 'w+') as fl:
+        parser.write(fl)
+
+
+def set_db_path_test(config_path: str = CONFIG) -> str:
     """Change the config.ini to have a test database path"""
     parser = configparser.ConfigParser()
     parser.read(config_path)
     path = f'test_{uuid.uuid4()}.db'
-    parser[DB_PATH_HEADER] = {DB_PATH_SECTION: path}
-    with open(CONFIG, 'w+') as fl:
-        parser.write(fl)
+    _set_db_path(path)
 
     # --2-- registering the removal of the test database at the end of run
-    # def _at_exit(_path=path):
-    #     os.remove(_path)
-    #
-    # atexit.register(_at_exit)
+    def _at_exit(_path=path):
+        os.remove(_path)
+        _set_db_path(config_path=config_path)  # Set to default
+
+    atexit.register(_at_exit)
+
+    return path

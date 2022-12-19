@@ -9,7 +9,7 @@ from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.textfield import MDTextField
 
 from src.DB.food_db import FoodDB, Food
-from src.utils.utils import RTLMDTextField
+from src.utils.kivy_components import RTLMDTextField
 
 
 class FloatMDTextField(MDTextField):

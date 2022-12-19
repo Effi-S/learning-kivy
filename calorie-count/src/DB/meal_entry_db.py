@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import sqlite3
 from dataclasses import dataclass, field
-from datetime import datetime as dt, timedelta
-import atexit
+from datetime import datetime as dt
 from src.DB.food_db import Food, FoodDB
 from src.utils import config
+from src.utils.utils import str2iso
 
 
 @dataclass
@@ -43,7 +43,6 @@ class MealEntry:
             self.food.proteins *= ratio
             self.food.sodium *= ratio
             self.food.sugar *= ratio
-            print(ratio, self)
 
     @staticmethod
     def columns() -> tuple[str, ...]:
@@ -67,7 +66,6 @@ class MealEntryDB:
 
         # Connect to DB (or create one if none exists)
         self.conn = sqlite3.connect(db_path, timeout=15)
-        atexit.register(lambda: self.conn.close())  # In-case 'with' not used
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE if not exists meal_entries(
                           meal_id text,
@@ -96,32 +94,26 @@ class MealEntryDB:
 
     def get_entries_between_dates(self, start_date: str, end_date: str) -> list[MealEntry]:
         cmd = f'SELECT * FROM meal_entries WHERE date BETWEEN "{start_date}" AND "{end_date}"'
-        print(cmd)
         self.cursor.execute(cmd)
         ret = []
         for entry in self.cursor.fetchall():
             with FoodDB() as fdb:
                 meal_id, portion, date, e_id = entry
-
-            meal = fdb.get_food_by_id(meal_id)
+                meal = fdb.get_food_by_id(meal_id)
             ret.append(self.MealEntry(name=meal.name, food=meal, portion=portion, date=date, id=e_id))
         return ret
 
     def get_first_last_dates(self) -> tuple[dt.date, dt.date]:
         """Get the first and the last date of all entries"""
 
-        def _str2iso(string):
-            """Helper function turning strings to iso format date objects"""
-            return dt.strptime(string, '%Y-%m-%d').date()
-
         cmd = f'SELECT MIN(date), MAX(date) FROM meal_entries'
         self.cursor.execute(cmd)
         start, end = self.cursor.fetchone()
         if not any((start, end)):
-            today = _str2iso(dt.now().date().isoformat())
+            today = str2iso(dt.now().date().isoformat())
             return today, today
 
-        start, end = _str2iso(start) - timedelta(days=1), _str2iso(end)
+        start, end = str2iso(start), str2iso(end)
         return start, end
 
     def delete_entry(self, time_stamp: str) -> None:
