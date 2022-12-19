@@ -2,6 +2,7 @@ from __future__ import annotations
 import atexit
 import sqlite3
 from dataclasses import dataclass, asdict, astuple
+from pathlib import Path
 from typing import Generator
 from difflib import SequenceMatcher
 
@@ -32,10 +33,9 @@ class FoodData:
 
 class ExternalFoodsDB:
     def __init__(self, locally: bool = False):
-        db = 'DB/external/external_foods'
-        if locally:
-            db = 'external_foods'
-        self.conn = sqlite3.connect(db)
+        path = next(Path().glob('**/external_foods'), None)
+        assert path, 'Could not find "external_foods" file'
+        self.conn = sqlite3.connect(path)
         atexit.register(lambda: self.conn.close())  # In-case 'with' not used
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE if not exists foods(

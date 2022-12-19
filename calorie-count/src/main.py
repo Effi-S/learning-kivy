@@ -2,49 +2,39 @@
     1. Initialization of our Calorie App.
     2. Events referenced by .kv files."""
 from __future__ import annotations
-
-import configparser
 import os
-from typing import Callable
-
-from kivymd.uix.filemanager import MDFileManager
 
 try:
     import kivy
 except (Exception,):
     os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'  # (debug w/ Windows + GPU)
+from kivy.clock import Clock
+from kivy.metrics import dp
+from kivy.lang import Builder
 
+from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.pickers import MDDatePicker
-
-from lib.theme.picker import MDThemePicker
-from utils import xlsx
-
-from screens.daily_screen import DailyScreen
-from screens.food_search import FoodSearchScreen
-from utils.plotting import plot_pie_chart, plot_graph
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDFillRoundFlatIconButton
 from kivymd.uix.menu import MDDropdownMenu
-
-from kivy.clock import Clock
-from kivy.metrics import dp
 from kivymd.toast import toast
 from kivymd.uix.datatables import MDDataTable
-
-from kivy.lang import Builder
 from kivymd.app import MDApp
-
-from DB.meal_entry_db import MealEntriesDB, MealEntry
 
 from datetime import datetime as dt
 from datetime import timedelta
 
-from utils.utils import sort_by_similarity
-from screens.food_add_dialog import FoodAddDialog
-from DB.food_db import Food, FoodDB
+from lib.theme.picker import MDThemePicker
 
-CONFIG, THEME = 'DB/config.ini', 'THEME'
-MAIN_KV = "kv_files/main.kv"
+from src.DB.food_db import FoodDB, Food
+from src.DB.meal_entry_db import MealEntryDB, MealEntry
+from src.utils.consts import MAIN_KV
+from src.utils import config, xlsx
+from src.utils.plotting import plot_pie_chart, plot_graph
+from src.utils.utils import sort_by_similarity
+from src.screens.daily_screen import DailyScreen
+from src.screens.food_search import FoodSearchScreen
+from src.screens.food_add_dialog import FoodAddDialog
 
 
 class CaloriesApp(MDApp):
@@ -56,11 +46,10 @@ class CaloriesApp(MDApp):
 
     def build(self):
         # Configuring picker data
-        parser = configparser.ConfigParser()
-        parser.read(CONFIG)
-        self.theme_cls.theme_style = parser.get(THEME, 'theme_style', fallback="Dark")
-        self.theme_cls.accent_palette = parser.get(THEME, 'accent_palette', fallback="Teal")
-        self.theme_cls.primary_palette = parser.get(THEME, 'primary_palette', fallback="BlueGray")
+
+        self.theme_cls.theme_style, \
+            self.theme_cls.accent_palette, \
+            self.theme_cls.primary_palette = config.get_theme()
 
         Clock.schedule_once(self._post_build_)
 
@@ -114,7 +103,7 @@ class CaloriesApp(MDApp):
             self.add_food_dialog = FoodAddDialog(self)
         self.add_food_dialog.open()
 
-    def on_trends_pressed(self, *args, _once=[]):  # Note: mutable default parameter is on purpose here
+    def on_trends_pressed(self, *args, _once=[]):  # Mutable default parameter on purpose
         """Event when entering the "Trends" screen """
         if not _once:
             # Setting the Dates in trends between today and 7 days ago
@@ -135,10 +124,12 @@ class CaloriesApp(MDApp):
 
     def on_name_entered_in_add_entry_screen(self, c: str, *args):
         """ c is the additional character entered by the user"""
+
         def _callback(txt: str) -> None:
             self.root.ids.entry_add_screen.ids.meal_name_input.text = txt
             with FoodDB() as db:
-                self.root.ids.entry_add_screen.ids.grams_input.text = str(db.get_food_by_name(txt).portion)
+                self.root.ids.entry_add_screen.ids.grams_input.text = \
+                    str(db.get_food_by_name(txt).portion)
 
         text_field = self.root.ids.entry_add_screen.ids.meal_name_input
         target = text_field.text + c
@@ -201,7 +192,7 @@ class CaloriesApp(MDApp):
                               ])
             dialog.open()
         else:
-            with MealEntriesDB() as me_db:
+            with MealEntryDB() as me_db:
                 me = MealEntry(name=name, portion=float(portion or 0), date=entry_date)
                 me_db.add_meal_entry(me)
                 toast(f'Added Meal entry!\n({me}')
@@ -241,7 +232,7 @@ class CaloriesApp(MDApp):
             button.text = button.text.splitlines()[0] + '\n' + _date.isoformat()
 
         if is_limited:
-            with MealEntriesDB() as me_db:
+            with MealEntryDB() as me_db:
                 first, last = me_db.get_first_last_dates()
             if first == last:
                 first -= timedelta(days=1)
@@ -266,7 +257,7 @@ class CaloriesApp(MDApp):
         start_date = self.root.ids.trends_screen.ids.trend_start_date_button.text.splitlines()[-1]
         end_date = self.root.ids.trends_screen.ids.trend_end_date_button.text.splitlines()[-1]
 
-        with MealEntriesDB() as me_db:
+        with MealEntryDB() as me_db:
             entries = me_db.get_entries_between_dates(str(start_date), str(end_date))
 
         trends_layout = self.root.ids.trends_screen.ids.trends_layout
@@ -305,14 +296,9 @@ class CaloriesApp(MDApp):
     def show_theme_picker(self, *args, **kwargs):
 
         def _set_theme(*a, **k):
-            parser = configparser.ConfigParser()
-            parser[THEME] = {
-                'theme_style': self.theme_cls.theme_style,
-                'primary_palette': self.theme_cls.primary_palette,
-                'accent_palette': self.theme_cls.accent_palette,
-            }
-            with open(CONFIG, 'w+') as fl:
-                parser.write(fl)
+            config.set_theme(self.theme_cls.theme_style,
+                             self.theme_cls.primary_palette,
+                             self.theme_cls.accent_palette)
 
         theme_dialog = MDThemePicker()
         theme_dialog.bind(on_dismiss=_set_theme)
@@ -328,13 +314,13 @@ class CaloriesApp(MDApp):
 
                 target = f'{fl}/Calorie_Counting_{dt.now():%F}.xlsx'
                 dialog = MDDialog(text=f"Are you sure you want to Save:\n{target}?",
-                                  buttons=[MDFlatButton(text="CANCEL", on_press=lambda *a_, **k_: dialog.dismiss()),
+                                  buttons=[MDFlatButton(text="CANCEL",
+                                                        on_press=lambda *a_, **k_: dialog.dismiss()),
                                            MDFlatButton(text="SAVE", on_press=_save)],
                                   on_dismiss=lambda *a_: file_manager.close())
                 dialog.open()
 
-            file_manager = MDFileManager(search='dirs',
-                                         select_path=_on_selected)  # function called when selecting a file/directory
+            file_manager = MDFileManager(search='dirs', select_path=_on_selected)
             file_manager.show(os.path.expanduser("~"))
 
         def import_xlsx():  # option 2 - Save

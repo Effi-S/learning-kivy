@@ -37,7 +37,7 @@ version = 0.2
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = sqlite3,python3,kivy==2.0.0,kivymd==0.104.2,sdl2_ttf==2.0.15,pil,https://github.com/kivymd-extensions/akivymd/archive/main.zip,matplotlib,numpy
+requirements = sqlite3,python3,kivy==2.1.0,kivymd==1.1.1,openpyxl==3.0.10,sdl2_ttf==2.0.15,matplotlib,numpy
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
@@ -94,6 +94,8 @@ fullscreen = 0
 
 # (list) Permissions
 #android.permissions = INTERNET
+android.permissions = WRITE_EXTERNAL_STORAGE
+
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host

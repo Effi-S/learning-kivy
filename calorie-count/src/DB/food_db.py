@@ -2,12 +2,12 @@
 Parameters to and from this DB are passed with instances of the  dataclass "Food". """
 from __future__ import annotations
 
-import os.path
 import sqlite3
 from dataclasses import dataclass, field, astuple, asdict
 from datetime import datetime as dt
-from typing import Iterable, Tuple, Any
-import atexit
+from typing import Iterable, Any, Optional
+
+from src.utils import config
 
 
 @dataclass
@@ -38,8 +38,8 @@ class Food:
     @staticmethod
     def columns() -> tuple[str, ...]:
         """Get all the column headers for representing a 'Food' to the customer."""
-        return 'Name', 'Portion (g)', 'Protein (g)', 'Fats (g)', 'Carbs (g)',\
-               'Sugar (g)', 'Sodium (mg)', 'Water (g)', 'Calories'
+        return 'Name', 'Portion (g)', 'Protein (g)', 'Fats (g)', 'Carbs (g)', \
+            'Sugar (g)', 'Sodium (mg)', 'Water (g)', 'Calories'
 
     @property
     def values(self) -> tuple[float, ...] | tuple[float | Any, ...]:
@@ -48,14 +48,10 @@ class Food:
 
 
 class FoodDB:
-    DB_PATH = "calorie_app"
-
-    def __init__(self):
-        if not os.path.exists(self.DB_PATH) and os.path.exists(f'../{self.DB_PATH}'):
-            self.DB_PATH = f'../{self.DB_PATH}'
+    def __init__(self, db_path: str = None):
+        db_path = db_path or config.get_db_path()
         # Connect to DB (or create one if none exists)
-        self.conn = sqlite3.connect(self.DB_PATH, timeout=15)
-        atexit.register(lambda: self.conn.close)  # for when 'with' not used
+        self.conn = sqlite3.connect(db_path, timeout=15)
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE if not exists food(
                                 name text PRIMARY KEY,
@@ -85,22 +81,25 @@ class FoodDB:
         return [str(x) for f in self.cursor.fetchall() for x in f if x]
 
     def get_food_by_name(self, name: str):
-        self.cursor.execute(" SELECT * FROM food"
-                            f" WHERE `name` = '{name}'")
-        return Food(*self.cursor.fetchone())
+        cmd = f" SELECT * FROM food  WHERE `name` = '{name}'"
+        self.cursor.execute(cmd)
+        return Food(*(self.cursor.fetchone() or ()))
 
     def get_food_by_id(self, id_: str):
-        self.cursor.execute(" SELECT * FROM food"
-                            f" WHERE `id` = '{id_}'")
+        cmd = f" SELECT * FROM food WHERE `id` = '{id_}'"
+        self.cursor.execute(cmd)
         return Food(*self.cursor.fetchone())
 
     def add_food(self, food: Food, update: bool = False):
         """update => existing Foods are updated"""
         or_update = 'OR UPDATE' if update else ''
-        self.cursor.execute(f'INSERT {or_update} INTO food Values {astuple(food)}', asdict(food))
+        cmd = f'INSERT {or_update} INTO food Values {astuple(food)}'
+        self.cursor.execute(cmd, asdict(food))
         self.conn.commit()
 
-    def remove(self, names: list[str]) -> None:
+    def remove(self, names: Optional[str, list[str]]) -> None:
+        if isinstance(names, str):
+            names = [names]
         if not names:
             return
 
@@ -113,7 +112,6 @@ class FoodDB:
                     inner join meal_entries  
                   WHERE meal_entries.meal_id = food.id
                     AND name in {it2str(names)}"""
-        print(cmd)
         self.cursor.execute(cmd)
         to_clear_name = [x for tp in self.cursor.fetchall() for x in tp]
         to_delete = [n for n in names if n not in to_clear_name]

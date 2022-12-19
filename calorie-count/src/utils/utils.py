@@ -1,8 +1,7 @@
 """This module holds simple utility functions."""
-import re
 from typing import Iterable
 from difflib import SequenceMatcher
-from kivymd.uix.textfield import MDTextField
+from datetime import datetime as dt, date
 
 
 def similarity(a: str, b: str) -> float:
@@ -17,12 +16,6 @@ def sort_by_similarity(iterable: Iterable[str], target: str) -> Iterable:
     return ret
 
 
-class RTLMDTextField(MDTextField):
-    """TextField Input that allows rtl."""
-    _reg = re.compile(r'[a-zA-Z]')
-
-    def insert_text(self, s, from_undo=False):
-        if s.isalpha() and not self._reg.findall(s):
-            self.text = s + self.text
-            return super().insert_text('', from_undo=from_undo)
-        return super().insert_text(s, from_undo=from_undo)
+def str2iso(string) -> date:
+    """Helper function turning strings to iso format date objects"""
+    return dt.strptime(string, '%Y-%m-%d').date()
