@@ -1,0 +1,21 @@
+name: Run Python code from other repository that creates Issues
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: Effi-S/GithubActionTest
+          ref: master
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo " python main.py --owner ${{ github.actor }} --repo ${{ github.repository }} --token ****** "
+      - run: python main.py --user ${{ github.actor }} --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+
+      
