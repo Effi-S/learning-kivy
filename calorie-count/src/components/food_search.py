@@ -9,7 +9,7 @@ from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.list import ThreeLineAvatarListItem, IconLeftWidget
 
 from src.DB.external.client import FoodData, ExternalFoodsDB
-from src.screens.food_add_dialog import FoodAddDialog
+from src.components.food_add_dialog import FoodAddDialog
 from src.utils.kivy_components import RTLMDTextField
 
 KV = '''

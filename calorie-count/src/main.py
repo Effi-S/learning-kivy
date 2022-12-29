@@ -3,6 +3,8 @@
     2. Events referenced by .kv files."""
 from __future__ import annotations
 import os
+from datetime import datetime as dt
+from datetime import timedelta
 
 try:
     import kivy
@@ -11,7 +13,6 @@ except (Exception,):
 from kivy.clock import Clock
 from kivy.metrics import dp
 from kivy.lang import Builder
-
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.pickers import MDDatePicker
 from kivymd.uix.dialog import MDDialog
@@ -21,20 +22,16 @@ from kivymd.toast import toast
 from kivymd.uix.datatables import MDDataTable
 from kivymd.app import MDApp
 
-from datetime import datetime as dt
-from datetime import timedelta
 
 from lib.theme.picker import MDThemePicker
-
 from src.DB.food_db import FoodDB, Food
 from src.DB.meal_entry_db import MealEntryDB, MealEntry
-from src.utils.consts import MAIN_KV
-from src.utils import config, xlsx
+from src.utils import config, xlsx, consts
 from src.utils.plotting import plot_pie_chart, plot_graph
 from src.utils.utils import sort_by_similarity
-from src.screens.daily_screen import DailyScreen
-from src.screens.food_search import FoodSearchScreen
-from src.screens.food_add_dialog import FoodAddDialog
+from src.components.daily_screen import DailyScreen
+from src.components.food_search import FoodSearchScreen
+from src.components.food_add_dialog import FoodAddDialog
 
 
 class CaloriesApp(MDApp):
@@ -55,7 +52,7 @@ class CaloriesApp(MDApp):
 
         from kivy.core.window import Window
         Window.size = (500, 700)
-        return Builder.load_file(MAIN_KV)
+        return Builder.load_file(consts.MAIN_KV)
 
     def _post_build_(self, *a, **k):
         self.on_my_foods_screen_pressed()  # loading table

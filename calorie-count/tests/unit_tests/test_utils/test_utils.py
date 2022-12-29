@@ -17,7 +17,7 @@ class TestSortBySimilarity(unittest.TestCase):
         tup = ('world', 'Johnny', 'hello', 'foo')
         self.assertEqual(next(iter(sort_by_similarity(tup, 'john'))), 'Johnny')
 
-# TODO make mock app for testing this TextField and for screens
+# TODO make mock app for testing this TextField and for components
 # class TestRTLMDTextField(unittest.TestCase):
 #
 #     @patch.object(MDTextField, 'insert_text')
