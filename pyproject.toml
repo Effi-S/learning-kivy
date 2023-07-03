@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "calorie_count"
+version = "1.0.0"
+readme = "README.md"
+dependencies = [
+    "kivy>=2.1.0",
+    "kivymd==1.1.1",
+    "sqlalchemy>=2.0.0",
+    "matplotlib==3.6.2",
+    "openpyxl==3.0.10",
+    "pylint==2.15.9"
+]
+
+[project.scripts]
+calorie-app = "calorie_count.__main__:main"

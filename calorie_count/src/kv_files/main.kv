@@ -1,0 +1,59 @@
+#: include calorie_count/src/kv_files/entry_add_screen.kv
+#: include calorie_count/src/kv_files/foods_screen.kv
+#: include calorie_count/src/kv_files/trends_screen.kv
+#: include calorie_count/src/kv_files/daily_screen.kv
+#: include calorie_count/src/kv_files/nav_drawer.kv
+
+Screen:
+    MDNavigationLayout:
+        ScreenManager:
+            orientation: 'vertical'
+            id: screen_manager
+            Screen:
+                name: "default"
+                MDBoxLayout:
+                    orientation: "vertical"
+                    MDTopAppBar:
+                        id: top_app_bar
+            	        title: "Calorie Counter"
+            	        left_action_items:[['menu', lambda x: nav_drawer.set_state("open")]]
+            	        right_action_items: [['share-variant', app.open_xlsx_dropdown], ['invert-colors', app.show_theme_picker]]
+
+                    MDBottomNavigation:
+                        id: bottom_navigation
+                        MDBottomNavigationItem:
+                            name: 'my_foods'
+                            text: "My Foods"
+                            icon: 'basket'
+                            on_enter: app.on_my_foods_screen_pressed(*args)
+                            MealsScreen:
+                                id: foods_screen
+
+                        MDBottomNavigationItem:
+                            name: 'add_entry'
+                            text: "Add Entry"
+                            icon: 'calendar-plus'
+                            EntryAddScreen:
+                                id: entry_add_screen
+
+                        MDBottomNavigationItem:
+                            name: 'daily_screen'
+                            text: "Today"
+                            icon: 'view-day-outline'
+                            on_tab_press: app.on_daily_screen_pressed(*args)
+                            DailyScreen:
+                                id: daily_screen
+
+
+                        MDBottomNavigationItem:
+                            name: 'trends_screen'
+                            text: "Trends"
+                            icon: 'chart-bell-curve-cumulative'
+                            on_enter: app.on_trends_pressed(*args)
+                            TrendsScreen:
+                                id: trends_screen
+                                text: "View your trends here"
+                                halign: 'center'
+        MDNavigationDrawer:
+            id: nav_drawer
+            ContentNavigationDrawer:
