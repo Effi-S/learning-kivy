@@ -15,7 +15,7 @@ jobs:
           repository: Effi-S/GithubActionTest
           ref: main
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: python main.py --repo ${{ github.repository }} --token ${{ secrets.ACTION_TOKEN }}
+      - run: #python main.py --repo ${{ github.repository }} --token ${{ secrets.ACTION_TOKEN }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
       
