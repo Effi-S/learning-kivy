@@ -8,8 +8,8 @@ version = "1.0.0"
 readme = "README.md"
 dependencies = [
     "kivy>=2.3.0",
-    "kivymd==1.2.1",
-    "sqlalchemy>=2.0.35",
+    "kivymd==1.2.0",
+    "sqlalchemy>=2.0.36",
     "matplotlib==3.9.2",
     "openpyxl==3.1.5",
     "pylint==3.3.1"

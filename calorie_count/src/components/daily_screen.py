@@ -1,11 +1,14 @@
 import re
-from datetime import date, timedelta
+from datetime import date
 from datetime import datetime as dt
+from datetime import timedelta
+
 from kivy.clock import Clock
 from kivy.uix.scrollview import ScrollView
 from kivymd.toast import toast
-from kivymd.uix.list import MDList, TwoLineAvatarIconListItem, IconRightWidget
+from kivymd.uix.list import IconRightWidget, MDList, TwoLineAvatarIconListItem
 
+from calorie_count.src.consts import ARIAL
 from calorie_count.src.DB.meal_entry_db import MealEntry, MealEntryDB
 
 
@@ -15,9 +18,14 @@ class ListEntry(TwoLineAvatarIconListItem):
     def __init__(self, entry_list: MDList, entry: MealEntry, **kwargs):
         self.entry_list = entry_list
         self.entry_id = entry.id
-        self.delete_icon = IconRightWidget(icon='delete', on_release=self.on_del_icon_pressed)
+        self.delete_icon = IconRightWidget(
+            icon="delete", on_release=self.on_del_icon_pressed
+        )
         self.is_icon_hidden = True
-        super().__init__(**kwargs, on_press=lambda *a, **k: self.on_item_press(self.entry_id, *a, **k))
+        super().__init__(
+            **kwargs,
+            on_press=lambda *a, **k: self.on_item_press(self.entry_id, *a, **k),
+        )
 
     def on_item_press(self, entry_id: str, _item: TwoLineAvatarIconListItem, *a, **k):
         """Callback for when list item pressed (Note: mutable default on purpose)"""
@@ -38,46 +46,56 @@ class ListEntry(TwoLineAvatarIconListItem):
         self.entry_list.remove_widget(self)
         with MealEntryDB() as db:
             db.delete_entry(self.entry_id)
-        toast(f'{self.text} Removed')
+        toast(f"{self.text} Removed")
 
 
 class DailyScreen(ScrollView):
 
     def update(self, day: date = dt.now().date()):
         """Given the App (as reference), clears and re-loads the Daily screen.
-         Loads the Entries based on the date given. Default date is today"""
+        Loads the Entries based on the date given. Default date is today"""
 
         # -- Set label
         today, one_day = dt.now().date(), timedelta(days=1)
-        day_lbl = 'Today' if day == today else 'Yesterday' if day == today - one_day else day.isoformat()
-        self.ids.total_cals_header_label.text = f'Total Calories {day_lbl}'
+        day_lbl = (
+            "Today"
+            if day == today
+            else "Yesterday" if day == today - one_day else day.isoformat()
+        )
+        self.ids.total_cals_header_label.text = f"Total Calories {day_lbl}"
 
         # -- Set Sum
         with MealEntryDB() as me_db:
             entries = me_db.get_entries_between_dates(day.isoformat(), day.isoformat())
 
         cals = sum(e.food.cals for e in entries)
-        self.ids.total_cals_label.text = f'{cals: .2f}'
+        self.ids.total_cals_label.text = f"{cals: .2f}"
 
         # -- Create List of Entries
         entry_list: MDList = self.ids.daily_entries_list
         entry_list.clear_widgets()
         for i, entry in enumerate(entries, 1):
-            text = entry.food.name or f'Meal {i} (Unnamed)'
-            entry_list.add_widget(ListEntry(entry_list, entry,
-                                            text=f'[font=Arial]{text}[/font]',
-                                            secondary_text=f'Calories: {entry.food.cals: .2f}'))
+            text = entry.food.name or f"Meal {i} (Unnamed)"
+            entry_list.add_widget(
+                ListEntry(
+                    entry_list,
+                    entry,
+                    text=text,
+                    font_name=str(ARIAL),
+                    secondary_text=f"Calories: {entry.food.cals: .2f}",
+                )
+            )
 
     def get_day(self) -> date:
         """Get a date object parsed from the label displayed in Daily screen"""
         text = self.ids.total_cals_header_label.text
-        if 'today' in text.lower():
+        if "today" in text.lower():
             return dt.now().date()
-        elif 'yesterday' in text.lower():
+        elif "yesterday" in text.lower():
             return (dt.now() - timedelta(days=1)).date()
-        for day in re.findall(r'\d+-\d+-\d+', text):
+        for day in re.findall(r"\d+-\d+-\d+", text):
             return dt.fromisoformat(day).date()
-        toast('Error Getting day')
+        toast("Error Getting day")
 
     def on_prev_daily_pressed(self, *args):
         """Previous day in Daily tab"""
